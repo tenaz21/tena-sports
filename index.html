@@ -2,387 +2,206 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>TENA SPORTS</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-background:linear-gradient(180deg,#081427,#020814);
+margin:0;
+font-family:Arial;
+background:#08142b;
 color:white;
-padding-bottom:90px;
-overflow-x:hidden;
 }
 
-.header{
-background:linear-gradient(90deg,#163b75,#295cb8);
-padding:22px;
-font-size:34px;
-font-weight:bold;
-text-align:center;
-box-shadow:0 4px 15px rgba(0,0,0,.4);
-}
-
-.title-bar{
-background:linear-gradient(90deg,#ff3d00,#ff0055);
-padding:16px;
-font-size:20px;
+header{
+background:linear-gradient(90deg,#132d5f,#1d4ed8);
+padding:20px;
+font-size:35px;
 font-weight:bold;
 text-align:center;
 }
 
-#matches{
-padding:10px;
-animation:fade .4s ease;
+.top{
+background:red;
+padding:15px;
+font-size:28px;
+font-weight:bold;
+}
+
+.league{
+background:#112244;
+padding:12px;
+font-size:22px;
+font-weight:bold;
+margin-top:15px;
 }
 
 .card{
-background:#0c1b36;
-margin:15px 10px;
-padding:18px;
-border-radius:22px;
-box-shadow:0 8px 20px rgba(0,0,0,.35);
-animation:fade .4s ease;
+background:#102850;
+margin:15px;
+padding:20px;
+border-radius:20px;
+box-shadow:0 0 15px rgba(0,0,0,.5);
 }
 
-.estado{
-font-size:18px;
+.live{
+color:#00ff88;
+font-size:30px;
 font-weight:bold;
-margin-bottom:15px;
 }
-
-.live{color:#00ff88;}
-.upcoming{color:#ffd54f;}
-.finished{color:#4cff4c;}
 
 .team{
-display:flex;
-align-items:center;
-gap:12px;
+font-size:28px;
 margin:10px 0;
-font-size:22px;
-}
-
-.team img{
-width:34px;
-height:34px;
 }
 
 .score{
-font-size:32px;
+font-size:40px;
 font-weight:bold;
 margin-top:15px;
 }
 
 .minute{
-font-size:20px;
+color:#00ff88;
+font-size:28px;
 margin-top:10px;
-color:#00e5ff;
 }
 
-.bottom-nav{
-position:fixed;
-bottom:0;
+button{
 width:100%;
-background:#081427;
-display:flex;
-justify-content:space-around;
-padding:14px 0;
-box-shadow:0 -4px 20px rgba(0,0,0,.4);
-}
-
-.nav-btn{
-display:flex;
-flex-direction:column;
-align-items:center;
-cursor:pointer;
-font-size:22px;
-transition:.3s;
-color:#aaa;
-}
-
-.nav-btn span{
-font-size:13px;
-margin-top:4px;
-}
-
-.active{
-color:#00ff88;
-transform:scale(1.08);
-}
-
-.loader{
-text-align:center;
-padding:30px;
+padding:15px;
+margin-top:15px;
+background:#2563eb;
+border:none;
+border-radius:10px;
+color:white;
 font-size:20px;
-color:#00ff88;
+font-weight:bold;
 }
 
-@keyframes fade{
-from{
-opacity:0;
-transform:translateY(10px);
+.details{
+display:none;
+margin-top:15px;
+padding:15px;
+background:#08142b;
+border-radius:10px;
 }
-to{
-opacity:1;
-transform:translateY(0);
-}
+
+.stat{
+margin:8px 0;
+font-size:18px;
 }
 </style>
 </head>
 <body>
 
-<div class="header">⚽ TENA SPORTS</div>
+<header>⚽ TENA SPORTS</header>
 
-<div class="title-bar" id="tituloPagina">
-🔥 RESULTADOS DEPORTIVOS
-</div>
+<div class="top">🔥 HOY: Resultados deportivos EN VIVO</div>
 
 <div id="matches">
-<div class="loader">Cargando partidos...</div>
-</div>
-
-<div class="bottom-nav">
-
-<div class="nav-btn active" onclick="mostrarInicio(this)">
-🏠
-<span>Inicio</span>
-</div>
-
-<div class="nav-btn" onclick="mostrarEnVivo(this)">
-🔴
-<span>En Vivo</span>
-</div>
-
-<div class="nav-btn" onclick="mostrarProximos(this)">
-📅
-<span>Próximos</span>
-</div>
-
-<div class="nav-btn" onclick="mostrarFinalizados(this)">
-✅
-<span>Finalizados</span>
-</div>
-
+<h2 style="padding:20px;">Cargando partidos...</h2>
 </div>
 
 <script>
 
 const apiKey="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-function activar(btn){
-document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
+async function cargarPartidos(){
+
+const res=await fetch("https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",{
+method:"GET",
+headers:{
+"x-rapidapi-key":apiKey,
+"x-rapidapi-host":"livescore67.p.rapidapi.com"
 }
+});
 
-function fechaFormateada(offset){
-let fecha=new Date();
-fecha.setDate(fecha.getDate()+offset);
-return fecha.toISOString().split("T")[0];
-}
-
-function renderizar(lista,titulo){
-
-document.getElementById("tituloPagina").innerHTML=titulo;
+const data=await res.json();
 
 let html="";
 
-if(lista.length===0){
-html="<div class='loader'>No hay partidos disponibles</div>";
-}else{
-
-lista.forEach(partido=>{
+data.forEach(liga=>{
 
 html+=`
+<div class="league">
+🏆 ${liga.stage.stage_name}
+</div>
+`;
 
+liga.matches.forEach(partido=>{
+
+html+=`
 <div class="card">
 
-<div class="estado ${partido.clase}">
-${partido.estado}
-</div>
+<div class="live">🔴 EN VIVO</div>
 
-<div class="team">
-<img src="${partido.logo1}">
-${partido.equipo1}
-</div>
+<div class="team">${partido.team_home[0].team_name}</div>
 
-<div class="team">
-<img src="${partido.logo2}">
-${partido.equipo2}
-</div>
+<div class="team">${partido.team_away[0].team_name}</div>
 
 <div class="score">
-${partido.score}
+${partido.scores.home} - ${partido.scores.away}
 </div>
 
 <div class="minute">
-${partido.minuto}
+⏱ ${partido.match_status.live_time}'
 </div>
 
-</div>
+<button onclick="verDetalles('${partido.match_id}')">
+Ver detalles
+</button>
 
+<div id="detalle-${partido.match_id}" class="details"></div>
+
+</div>
 `;
 
 });
 
-}
+});
 
 document.getElementById("matches").innerHTML=html;
 
 }
 
+async function verDetalles(matchId){
 
+const box=document.getElementById("detalle-"+matchId);
 
-function cargarLive(){
+if(box.style.display==="block"){
+box.style.display="none";
+return;
+}
 
-fetch(`https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football`,{
-
+const res=await fetch(`https://livescore67.p.rapidapi.com/api/livescore/v1/match/details?match_id=${matchId}`,{
 method:"GET",
-
 headers:{
 "x-rapidapi-key":apiKey,
 "x-rapidapi-host":"livescore67.p.rapidapi.com"
 }
-
-})
-
-.then(res=>res.json())
-
-.then(data=>{
-
-let partidos=[];
-
-data.forEach(liga=>{
-
-liga.matches.forEach(partido=>{
-
-partidos.push({
-
-estado:"🔴 EN VIVO",
-clase:"live",
-
-equipo1:partido.team_home[0].team_name,
-equipo2:partido.team_away[0].team_name,
-
-logo1:partido.team_home[0].team_image_path,
-logo2:partido.team_away[0].team_image_path,
-
-score:`⚽ ${partido.scores.home} - ${partido.scores.away}`,
-
-minuto:`⏱ ${partido.match_status.live_time}'`
-
 });
 
-});
+const data=await res.json();
 
-});
+box.style.display="block";
 
-renderizar(partidos,"🔥 PARTIDOS EN VIVO");
+box.innerHTML=`
 
-});
+<div class="stat">📅 Fecha: ${data.match_date}</div>
+
+<div class="stat">🏟 Estadio: ${data.venue || "No disponible"}</div>
+
+<div class="stat">🏁 Estado: ${data.match_status.live_time}'</div>
+
+`;
 
 }
 
+cargarPartidos();
 
-
-function cargarFecha(offset,titulo,estado,clase,terminado=false){
-
-let fecha=fechaFormateada(offset);
-
-fetch(`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`,{
-
-method:"GET",
-
-headers:{
-"x-rapidapi-key":apiKey,
-"x-rapidapi-host":"livescore67.p.rapidapi.com"
-}
-
-})
-
-.then(res=>res.json())
-
-.then(data=>{
-
-let partidos=[];
-
-data.forEach(liga=>{
-
-liga.matches.forEach(partido=>{
-
-partidos.push({
-
-estado:estado,
-clase:clase,
-
-equipo1:partido.team_home[0].team_name,
-equipo2:partido.team_away[0].team_name,
-
-logo1:partido.team_home[0].team_image_path,
-logo2:partido.team_away[0].team_image_path,
-
-score: terminado
-? `⚽ ${partido.scores?.home ?? 0} - ${partido.scores?.away ?? 0}`
-: "⚽ VS",
-
-minuto: terminado
-? "⏱ Terminado"
-: `📅 ${partido.match_date}`
-
-});
-
-});
-
-});
-
-renderizar(partidos,titulo);
-
-});
-
-}
-
-
-
-function mostrarInicio(btn){
-activar(btn);
-cargarLive();
-}
-
-function mostrarEnVivo(btn){
-activar(btn);
-cargarLive();
-}
-
-function mostrarProximos(btn){
-activar(btn);
-cargarFecha(
-1,
-"📅 PRÓXIMOS PARTIDOS",
-"📅 PROGRAMADO",
-"upcoming"
-);
-}
-
-function mostrarFinalizados(btn){
-activar(btn);
-cargarFecha(
--1,
-"✅ PARTIDOS FINALIZADOS",
-"✅ FINALIZADO",
-"finished",
-true
-);
-}
-
-cargarLive();
-
-setInterval(cargarLive,30000);
+setInterval(cargarPartidos,30000);
 
 </script>
 
