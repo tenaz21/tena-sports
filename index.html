@@ -8,25 +8,24 @@
 <style>
 body{
 margin:0;
-background:#020b1c;
 font-family:Arial;
+background:#000d26;
 color:white;
 }
 
-header{
-background:linear-gradient(90deg,#13294d,#1f3d70);
+.header{
+background:#16356d;
 padding:25px;
 text-align:center;
-font-size:42px;
+font-size:40px;
 font-weight:bold;
 }
 
 .banner{
 background:red;
-padding:15px;
-text-align:center;
-font-weight:bold;
+padding:20px;
 font-size:22px;
+font-weight:bold;
 }
 
 #matches{
@@ -34,63 +33,63 @@ padding:20px;
 }
 
 .card{
-background:#0d1a30;
-padding:25px;
+background:#081a3d;
+padding:20px;
 margin-bottom:20px;
 border-radius:20px;
-box-shadow:0 0 20px rgba(0,0,0,.5);
+box-shadow:0 0 10px rgba(0,0,0,.4);
 }
 
 .live{
 color:#00ff88;
-font-weight:bold;
 font-size:22px;
+font-weight:bold;
 margin-bottom:15px;
-display:flex;
-align-items:center;
-}
-
-.live::before{
-content:"";
-width:15px;
-height:15px;
-background:red;
-border-radius:50%;
-display:inline-block;
-margin-right:10px;
-animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-0%{transform:scale(1);}
-50%{transform:scale(1.3);opacity:.5;}
-100%{transform:scale(1);}
 }
 
 .team{
-font-size:28px;
-font-weight:bold;
-margin-bottom:10px;
+font-size:24px;
+margin:10px 0;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.logo{
+width:35px;
+height:35px;
+border-radius:50%;
+object-fit:cover;
 }
 
 .score{
-font-size:35px;
-color:#2f7cff;
+font-size:30px;
 font-weight:bold;
 margin-top:15px;
 }
-</style>
-</head>
 
+.minute{
+color:#00ff88;
+font-size:20px;
+margin-top:10px;
+font-weight:bold;
+}
+</style>
+
+</head>
 <body>
 
-<header>⚽ TENA SPORTS</header>
+<div class="header">
+⚽ TENA SPORTS
+</div>
 
 <div class="banner">
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
-<div id="matches">Cargando partidos...</div>
+<div id="matches">
+Cargando partidos...
+</div>
 
 <script>
 
@@ -107,27 +106,42 @@ headers:{
 .then(data=>{
 
 console.log(data);
-alert(JSON.stringify(data));
 
 let html="";
 
-if(data.data && data.data.length > 0){
+if(data.length > 0){
 
-data.data.forEach(partido=>{
+data.forEach(liga=>{
+
+liga.matches.forEach(partido=>{
 
 html += `
 <div class="card">
 
 <div class="live">🔴 EN VIVO</div>
 
-<div class="team">${partido.home_name}</div>
+<div class="team">
+<img src="${partido.team_home[0].team_image_path}" class="logo">
+${partido.team_home[0].team_name}
+</div>
 
-<div class="team">${partido.away_name}</div>
+<div class="team">
+<img src="${partido.team_away[0].team_image_path}" class="logo">
+${partido.team_away[0].team_name}
+</div>
 
-<div class="score">${partido.score}</div>
+<div class="score">
+⚽ ${partido.scores.home} - ${partido.scores.away}
+</div>
+
+<div class="minute">
+⏱ ${partido.match_status.live_time}'
+</div>
 
 </div>
 `;
+
+});
 
 });
 
@@ -137,14 +151,14 @@ html="<h2>No hay partidos en vivo</h2>";
 
 }
 
-document.getElementById("matches").innerHTML = html;
+document.getElementById("matches").innerHTML=html;
 
 })
 .catch(error=>{
 
 console.log(error);
 
-document.getElementById("matches").innerHTML =
+document.getElementById("matches").innerHTML=
 "<h2>Error cargando partidos</h2>";
 
 });
