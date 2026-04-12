@@ -6,89 +6,133 @@
 <title>TENA SPORTS</title>
 
 <style>
-body{
+*{
 margin:0;
-font-family:Arial;
-background:linear-gradient(180deg,#07142d,#020b18);
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:linear-gradient(180deg,#081427,#020814);
 color:white;
-padding-bottom:100px;
+padding-bottom:90px;
+overflow-x:hidden;
 }
 
 .header{
-background:linear-gradient(90deg,#1e3c72,#2a5298);
-padding:25px;
-font-size:38px;
+background:linear-gradient(90deg,#163b75,#295cb8);
+padding:22px;
+font-size:34px;
+font-weight:bold;
+text-align:center;
+box-shadow:0 4px 15px rgba(0,0,0,.4);
+}
+
+.title-bar{
+background:linear-gradient(90deg,#ff3d00,#ff0055);
+padding:16px;
+font-size:20px;
 font-weight:bold;
 text-align:center;
 }
 
-.title-bar{
-background:linear-gradient(90deg,#ff512f,#dd2476);
-padding:18px;
-font-size:24px;
-font-weight:bold;
+#matches{
+padding:10px;
+animation:fade .4s ease;
 }
 
 .card{
-background:#0d1b3d;
-margin:20px;
-padding:25px;
-border-radius:25px;
-box-shadow:0 8px 20px rgba(0,0,0,.4);
+background:#0c1b36;
+margin:15px 10px;
+padding:18px;
+border-radius:22px;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+animation:fade .4s ease;
 }
 
-.live{
-font-size:28px;
+.estado{
+font-size:18px;
 font-weight:bold;
-color:#00ff88;
-margin-bottom:10px;
+margin-bottom:15px;
 }
+
+.live{color:#00ff88;}
+.upcoming{color:#ffd54f;}
+.finished{color:#4cff4c;}
 
 .team{
 display:flex;
 align-items:center;
 gap:12px;
-font-size:26px;
 margin:10px 0;
+font-size:22px;
 }
 
 .team img{
-width:35px;
-height:35px;
+width:34px;
+height:34px;
 }
 
 .score{
-font-size:35px;
+font-size:32px;
 font-weight:bold;
 margin-top:15px;
 }
 
 .minute{
-font-size:24px;
-color:#00ff88;
+font-size:20px;
 margin-top:10px;
+color:#00e5ff;
 }
 
 .bottom-nav{
 position:fixed;
 bottom:0;
 width:100%;
-background:#09182f;
+background:#081427;
 display:flex;
 justify-content:space-around;
-padding:15px 0;
+padding:14px 0;
+box-shadow:0 -4px 20px rgba(0,0,0,.4);
 }
 
 .nav-btn{
 display:flex;
 flex-direction:column;
 align-items:center;
-color:white;
 cursor:pointer;
+font-size:22px;
+transition:.3s;
+color:#aaa;
+}
+
+.nav-btn span{
+font-size:13px;
+margin-top:4px;
 }
 
 .active{
 color:#00ff88;
+transform:scale(1.08);
+}
+
+.loader{
+text-align:center;
+padding:30px;
+font-size:20px;
+color:#00ff88;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 </style>
 </head>
@@ -96,12 +140,12 @@ color:#00ff88;
 
 <div class="header">⚽ TENA SPORTS</div>
 
-<div class="title-bar" id="titulo">
-🔥 HOY: Resultados deportivos
+<div class="title-bar" id="tituloPagina">
+🔥 RESULTADOS DEPORTIVOS
 </div>
 
 <div id="matches">
-Cargando partidos...
+<div class="loader">Cargando partidos...</div>
 </div>
 
 <div class="bottom-nav">
@@ -132,51 +176,36 @@ Cargando partidos...
 
 const apiKey="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-let cachePartidos=[];
-
-
-
 function activar(btn){
-
 document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-
 btn.classList.add("active");
-
 }
 
-
-
-function formatearFecha(offset=0){
-
+function fechaFormateada(offset){
 let fecha=new Date();
-
 fecha.setDate(fecha.getDate()+offset);
-
 return fecha.toISOString().split("T")[0];
-
 }
 
+function renderizar(lista,titulo){
 
-
-function renderizar(data,titulo){
-
-document.getElementById("titulo").innerHTML=titulo;
+document.getElementById("tituloPagina").innerHTML=titulo;
 
 let html="";
 
-if(!data.length){
-
-html="<h2 style='padding:20px;'>No hay partidos disponibles</h2>";
-
+if(lista.length===0){
+html="<div class='loader'>No hay partidos disponibles</div>";
 }else{
 
-data.forEach(partido=>{
+lista.forEach(partido=>{
 
 html+=`
 
 <div class="card">
 
-<div class="live">${partido.estado}</div>
+<div class="estado ${partido.clase}">
+${partido.estado}
+</div>
 
 <div class="team">
 <img src="${partido.logo1}">
@@ -189,11 +218,11 @@ ${partido.equipo2}
 </div>
 
 <div class="score">
-⚽ ${partido.score}
+${partido.score}
 </div>
 
 <div class="minute">
-⏱ ${partido.minuto}
+${partido.minuto}
 </div>
 
 </div>
@@ -227,15 +256,16 @@ headers:{
 
 .then(data=>{
 
-cachePartidos=[];
+let partidos=[];
 
 data.forEach(liga=>{
 
 liga.matches.forEach(partido=>{
 
-cachePartidos.push({
+partidos.push({
 
 estado:"🔴 EN VIVO",
+clase:"live",
 
 equipo1:partido.team_home[0].team_name,
 equipo2:partido.team_away[0].team_name,
@@ -243,17 +273,17 @@ equipo2:partido.team_away[0].team_name,
 logo1:partido.team_home[0].team_image_path,
 logo2:partido.team_away[0].team_image_path,
 
-score:`${partido.scores.home} - ${partido.scores.away}`,
+score:`⚽ ${partido.scores.home} - ${partido.scores.away}`,
 
-minuto:`${partido.match_status.live_time}'`
-
-});
+minuto:`⏱ ${partido.match_status.live_time}'`
 
 });
 
 });
 
-renderizar(cachePartidos,"🔥 HOY: Resultados deportivos");
+});
+
+renderizar(partidos,"🔥 PARTIDOS EN VIVO");
 
 });
 
@@ -261,9 +291,9 @@ renderizar(cachePartidos,"🔥 HOY: Resultados deportivos");
 
 
 
-function cargarPorFecha(offset,titulo){
+function cargarFecha(offset,titulo,estado,clase,terminado=false){
 
-let fecha=formatearFecha(offset);
+let fecha=fechaFormateada(offset);
 
 fetch(`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`,{
 
@@ -288,7 +318,8 @@ liga.matches.forEach(partido=>{
 
 partidos.push({
 
-estado:"⚽ PROGRAMADO",
+estado:estado,
+clase:clase,
 
 equipo1:partido.team_home[0].team_name,
 equipo2:partido.team_away[0].team_name,
@@ -296,9 +327,13 @@ equipo2:partido.team_away[0].team_name,
 logo1:partido.team_home[0].team_image_path,
 logo2:partido.team_away[0].team_image_path,
 
-score:"vs",
+score: terminado
+? `⚽ ${partido.scores?.home ?? 0} - ${partido.scores?.away ?? 0}`
+: "⚽ VS",
 
-minuto:partido.match_date
+minuto: terminado
+? "⏱ Terminado"
+: `📅 ${partido.match_date}`
 
 });
 
@@ -315,44 +350,35 @@ renderizar(partidos,titulo);
 
 
 function mostrarInicio(btn){
-
 activar(btn);
-
 cargarLive();
-
 }
-
-
 
 function mostrarEnVivo(btn){
-
 activar(btn);
-
 cargarLive();
-
 }
-
-
 
 function mostrarProximos(btn){
-
 activar(btn);
-
-cargarPorFecha(1,"📅 PRÓXIMOS PARTIDOS");
-
+cargarFecha(
+1,
+"📅 PRÓXIMOS PARTIDOS",
+"📅 PROGRAMADO",
+"upcoming"
+);
 }
-
-
 
 function mostrarFinalizados(btn){
-
 activar(btn);
-
-cargarPorFecha(-1,"✅ PARTIDOS FINALIZADOS");
-
+cargarFecha(
+-1,
+"✅ PARTIDOS FINALIZADOS",
+"✅ FINALIZADO",
+"finished",
+true
+);
 }
-
-
 
 cargarLive();
 
