@@ -7,13 +7,19 @@
 <title>TENA SPORTS</title>
 
 <style>
-body{
+*{
 margin:0;
+padding:0;
+box-sizing:border-box;
 font-family:Arial;
+}
+
+body{
 background:#021427;
 color:white;
 padding-bottom:100px;
 }
+
 .header{
 background:linear-gradient(90deg,#004cff,#39a9ff);
 padding:25px;
@@ -21,29 +27,46 @@ font-size:32px;
 font-weight:bold;
 text-align:center;
 }
+
 .banner{
 background:red;
 padding:20px;
 font-size:24px;
 font-weight:bold;
 }
-.card{
-background:#26478d;
-margin:15px;
+
+#matches{
 padding:20px;
-border-radius:20px;
 }
+
 .liga{
 background:#19386b;
 padding:15px;
 font-size:22px;
 font-weight:bold;
+margin-top:15px;
+border-radius:10px;
 }
+
+.card{
+background:#26478d;
+padding:20px;
+margin-top:15px;
+border-radius:20px;
+}
+
+.estado{
+font-size:26px;
+font-weight:bold;
+margin-bottom:15px;
+}
+
 .score{
 font-size:55px;
 font-weight:bold;
 margin:20px 0;
 }
+
 .bottomnav{
 position:fixed;
 bottom:0;
@@ -51,292 +74,140 @@ width:100%;
 display:flex;
 background:#00152d;
 }
+
 .navbtn{
 flex:1;
 padding:20px;
 text-align:center;
+font-size:18px;
 font-weight:bold;
 cursor:pointer;
 }
+
 .active{
 color:#00bfff;
 }
 </style>
-
 </head>
 <body>
 
 <div class="header">⚽ TENA SPORTS</div>
 
-<div class="banner" id="banner">
+<div class="banner" id="tituloBanner">
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
 <div id="matches">
-<h2 style="padding:20px;">Cargando partidos...</h2>
+Cargando partidos...
 </div>
 
 <div class="bottomnav">
-<div class="navbtn active" onclick="mostrarLive(this)">🔴<br>En Vivo</div>
-<div class="navbtn" onclick="mostrarNext(this)">📅<br>Próximos</div>
-<div class="navbtn" onclick="mostrarFinished(this)">✅<br>Finalizados</div>
+<div class="navbtn active" onclick="verEnVivo(this)">🔴<br>En Vivo</div>
+<div class="navbtn" onclick="verProximos(this)">📅<br>Próximos</div>
+<div class="navbtn" onclick="verFinalizados(this)">✅<br>Finalizados</div>
 </div>
 
 <script>
 
-const API_KEY="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
+const API_TOKEN = "33383a1b11c24b09b892548b771985b4";
 
-let partidos=[];
+let modoActual="live";
 
 function activar(btn){
 document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));
 btn.classList.add("active");
 }
 
-async function cargarPartidos(){
+function fechaPeru(fecha){
+return new Date(fecha).toLocaleString("es-PE",{
+timeZone:"America/Lima",
+day:"numeric",
+month:"short",
+hour:"numeric",
+minute:"2-digit"
+});
+}
+
+async function obtenerPartidos(){
 
 try{
 
-document.getElementById("matches").innerHTML=
-"<h2 style='padding:20px'>Cargando partidos...</h2>";
-
-const fecha=new Date().toISOString().split("T")[0];
-
-const res=await fetch(
-`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`,
-{
+let res=await fetch("https://api.football-data.org/v4/matches",{
 headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":"livescore67.p.rapidapi.com"
+"X-Auth-Token":API_TOKEN
 }
-}
-);
+});
 
-const data=await res.json();
+let data=await res.json();
 
-console.log(data);
+renderizar(data.matches);
 
-if(data.data){
-
-partidos=data.data;
-
-}else if(Array.isArray(data)){
-
-partidos=data;
-
-}else{
-
-throw "La API no devolvió partidos válidos.";
-
-}
-
-mostrarLive();
-
-}catch(err){
+}catch(e){
 
 document.getElementById("matches").innerHTML=
-`
-<h2 style="padding:20px;color:red;">
-ERROR CARGANDO API:
-</h2>
-
-<pre style="padding:20px;color:yellow;">
-${err}
-</pre>
-`;
+"<h2 style='color:red;'>Error cargando partidos</h2>";
 
 }
 
 }
 
-function render(tipo){
+function renderizar(partidos){
 
 let html="";
 
-let encontrados=0;
+let filtrados=[];
 
-partidos.forEach(liga=>{
+if(modoActual==="live"){
+filtrados=partidos.filter(p=>p.status==="IN_PLAY"||p.status==="PAUSED");
+}
 
-if(!liga.matches)return;
+if(modoActual==="next"){
+filtrados=partidos.filter(p=>p.status==="TIMED");
+}
 
-let bloque="";
+if(modoActual==="finished"){
+filtrados=partidos.filter(p=>p.status==="FINISHED");
+}
 
-liga.matches.forEach(p=>{
-
-let vivo=p.match_status?.live===1;
-let finalizado=p.match_status?.finished===1;
-
-if(tipo==="live"&&!vivo)return;
-if(tipo==="next"&&(vivo||finalizado))return;
-if(tipo==="finished"&&!finalizado)return;
-
-encontrados++;
-
-bloque+=`
-
-<div class="card">
-
-<h2>
-<script>
-
-const API_KEY="TU_API_KEY";
-
-let partidos=[];
-
-async function cargarPartidos(){
-
-try{
+if(filtrados.length===0){
 
 document.getElementById("matches").innerHTML=
-"<h2 style='padding:20px'>Cargando partidos...</h2>";
-
-const fecha=new Date().toISOString().split("T")[0];
-
-const res=await fetch(
-`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`,
-{
-headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":"livescore67.p.rapidapi.com"
-}
-}
-);
-
-const data=await res.json();
-
-console.log("API COMPLETA:",data);
-
-partidos = [];
-
-/* DETECTA TODAS LAS ESTRUCTURAS POSIBLES */
-
-if(Array.isArray(data)){
-
-partidos=data;
-
-}
-
-else if(Array.isArray(data.data)){
-
-partidos=data.data;
-
-}
-
-else if(Array.isArray(data.matches)){
-
-partidos=data.matches;
-
-}
-
-else if(Array.isArray(data.results)){
-
-partidos=data.results;
-
-}
-
-else if(data.data?.matches){
-
-partidos=[{
-stage:{stage_name:"Partidos"},
-matches:data.data.matches
-}];
-
-}
-
-else{
-
-document.getElementById("matches").innerHTML=
-`
-<h2 style="padding:20px;color:red;">
-LA API RESPONDIÓ PERO CON FORMATO DESCONOCIDO
-</h2>
-
-<pre style="padding:20px;color:yellow;font-size:12px;">
-${JSON.stringify(data,null,2)}
-</pre>
-`;
+"<h2>No hay partidos disponibles</h2>";
 
 return;
 
 }
 
-mostrarLive();
+filtrados.forEach(p=>{
 
-}catch(err){
+let estadoTexto="";
 
-document.getElementById("matches").innerHTML=
-`
-<h2 style="padding:20px;color:red;">
-ERROR API:
-</h2>
+if(modoActual==="live") estadoTexto="🔴 EN VIVO";
+if(modoActual==="next") estadoTexto="📅 PRÓXIMO";
+if(modoActual==="finished") estadoTexto="✅ FINALIZADO";
 
-<pre style="padding:20px;color:yellow;">
-${err}
-</pre>
-`;
+html+=`
 
-}
-
-}
-
-function render(tipo){
-
-let html="";
-let contador=0;
-
-partidos.forEach(liga=>{
-
-let nombreLiga=liga.stage?.stage_name||"Liga";
-
-let matches=liga.matches||[];
-
-if(!matches.length)return;
-
-let cards="";
-
-matches.forEach(p=>{
-
-let vivo=p.match_status?.live===1||p.live===1;
-let finalizado=p.match_status?.finished===1||p.finished===1;
-
-if(tipo==="live"&&!vivo)return;
-if(tipo==="next"&&(vivo||finalizado))return;
-if(tipo==="finished"&&!finalizado)return;
-
-contador++;
-
-cards+=`
+<div class="liga">
+🏆 ${p.competition.name}
+</div>
 
 <div class="card">
 
-<h2>
-${
-tipo==="live"
-?"🔴 EN VIVO"
-:tipo==="next"
-?"📅 PRÓXIMO"
-:"✅ FINALIZADO"
-}
-</h2>
+<div class="estado">${estadoTexto}</div>
+
+<div>${p.homeTeam.name}</div>
 
 <br>
 
-<div>${p.team_home?.[0]?.team_name||p.home_name||"-"}</div>
-<div>${p.team_away?.[0]?.team_name||p.away_name||"-"}</div>
+<div>${p.awayTeam.name}</div>
 
 <div class="score">
-${p.scores?.home??p.home_score??"-"} -
-${p.scores?.away??p.away_score??"-"}
+${p.score.fullTime.home ?? "-"} - ${p.score.fullTime.away ?? "-"}
 </div>
 
 <div>
-⏱ ${
-vivo
-?p.match_status?.live_time||"En juego"
-:new Date(p.match_date||p.date).toLocaleString("es-PE",{
-timeZone:"America/Lima"
-})
-}
+⏱ ${fechaPeru(p.utcDate)}
 </div>
 
 </div>
@@ -344,56 +215,38 @@ timeZone:"America/Lima"
 `;
 
 });
-
-if(cards){
-
-html+=`
-<div class="liga">🏆 ${nombreLiga}</div>
-${cards}
-`;
-
-}
-
-});
-
-if(contador===0){
-
-html="<h2 style='padding:20px'>No hay partidos disponibles</h2>";
-
-}
 
 document.getElementById("matches").innerHTML=html;
 
 }
 
-function mostrarLive(){
-
-document.getElementById("banner").innerHTML=
+function verEnVivo(btn){
+modoActual="live";
+activar(btn);
+document.getElementById("tituloBanner").innerHTML=
 "🔥 HOY: Resultados deportivos EN VIVO";
-
-render("live");
-
+obtenerPartidos();
 }
 
-function mostrarNext(){
-
-document.getElementById("banner").innerHTML=
+function verProximos(btn){
+modoActual="next";
+activar(btn);
+document.getElementById("tituloBanner").innerHTML=
 "📅 Próximos partidos";
-
-render("next");
-
+obtenerPartidos();
 }
 
-function mostrarFinished(){
-
-document.getElementById("banner").innerHTML=
+function verFinalizados(btn){
+modoActual="finished";
+activar(btn);
+document.getElementById("tituloBanner").innerHTML=
 "✅ Partidos Finalizados";
-
-render("finished");
-
+obtenerPartidos();
 }
 
-cargarPartidos();
+obtenerPartidos();
+
+setInterval(obtenerPartidos,30000);
 
 </script>
 
