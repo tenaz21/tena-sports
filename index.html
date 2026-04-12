@@ -1,111 +1,28 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tena Sports</title>
-
-<style>
-body{
-margin:0;
-background:#020b1d;
-font-family:Arial;
-color:white;
-}
-
-header{
-background:linear-gradient(90deg,#16213e,#1f4068);
-padding:25px;
-text-align:center;
-font-size:38px;
-font-weight:bold;
-}
-
-.news{
-background:#e61b23;
-padding:12px;
-font-weight:bold;
-overflow:hidden;
-white-space:nowrap;
-}
-
-.container{
-padding:20px;
-}
-
-.card{
-background:#101c35;
-padding:25px;
-margin-bottom:25px;
-border-radius:25px;
-box-shadow:0 0 20px rgba(0,0,0,.4);
-}
-
-.live{
-color:#00ff7f;
-font-weight:bold;
-font-size:28px;
-margin-bottom:20px;
-}
-
-.match{
-display:flex;
-justify-content:space-between;
-align-items:center;
-font-size:30px;
-font-weight:bold;
-}
-
-.score{
-text-align:center;
-font-size:55px;
-color:#2f7bff;
-font-weight:bold;
-margin-top:20px;
-}
-
-.minute{
-text-align:center;
-margin-top:10px;
-color:#aaa;
-font-size:22px;
-}
-</style>
-</head>
-<body>
-
-<header>⚽ TENA SPORTS</header>
-
-<div class="news">
-🔥 HOY: Resultados deportivos EN VIVO
-</div>
-
-<div class="container" id="matches">
-
-</div>
-
 <script>
-
 async function cargarPartidos(){
-
-const response = await fetch("https://livescore6.p.rapidapi.com/matches/v2/list-live?Category=soccer",{
+try{
+const response = await fetch("https://livescore6.p.rapidapi.com/matches/v2/list-live?Category=soccer&Timezone=-5",{
 method:"GET",
 headers:{
 'X-RapidAPI-Key':'46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140',
-'X-RapidAPI-Host':'livescore6.p.rapidapi.com'
+'X-RapidAPI-Host':'livescore67.p.rapidapi.com'
 }
 });
 
 const data = await response.json();
 
-const matchesDiv=document.getElementById("matches");
+console.log(data);
 
+const matchesDiv=document.getElementById("matches");
 matchesDiv.innerHTML="";
 
+if(!data.Stages || data.Stages.length===0){
+matchesDiv.innerHTML="<h2>No hay partidos en vivo ahora mismo</h2>";
+return;
+}
+
 data.Stages.forEach(stage=>{
-
 stage.Events.forEach(match=>{
-
 matchesDiv.innerHTML += `
 <div class="card">
 <div class="live">🔴 EN VIVO</div>
@@ -124,18 +41,15 @@ ${match.Eps}
 </div>
 </div>
 `;
-
+});
 });
 
-});
-
+}catch(error){
+document.getElementById("matches").innerHTML="<h2>Error cargando partidos</h2>";
+console.log(error);
+}
 }
 
 cargarPartidos();
-
 setInterval(cargarPartidos,60000);
-
 </script>
-
-</body>
-</html>
