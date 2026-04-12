@@ -198,8 +198,10 @@ function formatearFecha(fecha){
 
 let d = new Date(fecha);
 
+/* corregir desfase manual */
+d.setHours(d.getHours()-12);
+
 return d.toLocaleString("es-PE",{
-timeZone:"America/Lima",
 day:"numeric",
 month:"short",
 hour:"numeric",
