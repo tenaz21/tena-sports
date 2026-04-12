@@ -15,26 +15,27 @@ color:white;
 }
 
 header{
-background:linear-gradient(90deg,#132d5f,#1d4ed8);
+background:linear-gradient(90deg,#1e3a8a,#2563eb);
 padding:20px;
 font-size:35px;
 font-weight:bold;
 text-align:center;
+box-shadow:0 4px 10px rgba(0,0,0,.4);
 }
 
 .top{
-background:red;
-padding:15px;
+background:#ff0000;
+padding:18px;
 font-size:28px;
 font-weight:bold;
 }
 
 .league{
 background:#112244;
-padding:12px;
-font-size:22px;
+padding:15px;
+font-size:24px;
 font-weight:bold;
-margin-top:15px;
+margin-top:10px;
 }
 
 .card{
@@ -42,13 +43,14 @@ background:#102850;
 margin:15px;
 padding:20px;
 border-radius:20px;
-box-shadow:0 0 15px rgba(0,0,0,.5);
+box-shadow:0 0 20px rgba(0,0,0,.4);
 }
 
 .live{
 color:#00ff88;
 font-size:30px;
 font-weight:bold;
+margin-bottom:10px;
 }
 
 .team{
@@ -57,7 +59,7 @@ margin:10px 0;
 }
 
 .score{
-font-size:40px;
+font-size:42px;
 font-weight:bold;
 margin-top:15px;
 }
@@ -74,10 +76,11 @@ padding:15px;
 margin-top:15px;
 background:#2563eb;
 border:none;
-border-radius:10px;
+border-radius:12px;
 color:white;
-font-size:20px;
+font-size:22px;
 font-weight:bold;
+cursor:pointer;
 }
 
 .details{
@@ -89,16 +92,20 @@ border-radius:10px;
 }
 
 .stat{
-margin:8px 0;
-font-size:18px;
+margin:10px 0;
+font-size:20px;
 }
 </style>
 </head>
 <body>
 
-<header>⚽ TENA SPORTS</header>
+<header>
+⚽ TENA SPORTS
+</header>
 
-<div class="top">🔥 HOY: Resultados deportivos EN VIVO</div>
+<div class="top">
+🔥 HOY: Resultados deportivos EN VIVO
+</div>
 
 <div id="matches">
 <h2 style="padding:20px;">Cargando partidos...</h2>
@@ -110,7 +117,9 @@ const apiKey="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
 async function cargarPartidos(){
 
-const res=await fetch("https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",{
+const res=await fetch(
+"https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",
+{
 method:"GET",
 headers:{
 "x-rapidapi-key":apiKey,
@@ -137,9 +146,13 @@ html+=`
 
 <div class="live">🔴 EN VIVO</div>
 
-<div class="team">${partido.team_home[0].team_name}</div>
+<div class="team">
+${partido.team_home[0].team_name}
+</div>
 
-<div class="team">${partido.team_away[0].team_name}</div>
+<div class="team">
+${partido.team_away[0].team_name}
+</div>
 
 <div class="score">
 ${partido.scores.home} - ${partido.scores.away}
@@ -149,7 +162,11 @@ ${partido.scores.home} - ${partido.scores.away}
 ⏱ ${partido.match_status.live_time}'
 </div>
 
-<button onclick="verDetalles('${partido.match_id}')">
+<button onclick="verDetalles(
+'${partido.match_id}',
+'${liga.country.country_code}',
+'${liga.stage.stage_code}'
+)">
 Ver detalles
 </button>
 
@@ -166,7 +183,7 @@ document.getElementById("matches").innerHTML=html;
 
 }
 
-async function verDetalles(matchId){
+async function verDetalles(matchId,countryCode,stageCode){
 
 const box=document.getElementById("detalle-"+matchId);
 
@@ -175,7 +192,13 @@ box.style.display="none";
 return;
 }
 
-const res=await fetch(`https://livescore67.p.rapidapi.com/api/livescore/v1/match/details?match_id=${matchId}`,{
+box.style.display="block";
+
+box.innerHTML="<h3>Cargando detalles...</h3>";
+
+const res=await fetch(
+`https://livescore67.p.rapidapi.com/api/livescore/v1/match/details/?sport_id=football&country_code=${countryCode}&stage_code=${stageCode}&match_id=${matchId}`,
+{
 method:"GET",
 headers:{
 "x-rapidapi-key":apiKey,
@@ -185,16 +208,20 @@ headers:{
 
 const data=await res.json();
 
-box.style.display="block";
+console.log(data);
 
 box.innerHTML=`
+<div class="stat">
+📅 Fecha: ${data.match_date || "No disponible"}
+</div>
 
-<div class="stat">📅 Fecha: ${data.match_date}</div>
+<div class="stat">
+🏟 Estadio: ${data.venue || "No disponible"}
+</div>
 
-<div class="stat">🏟 Estadio: ${data.venue || "No disponible"}</div>
-
-<div class="stat">🏁 Estado: ${data.match_status.live_time}'</div>
-
+<div class="stat">
+⏱ Minuto: ${data.match_status?.live_time || "No disponible"}'
+</div>
 `;
 
 }
