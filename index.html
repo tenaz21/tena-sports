@@ -59,8 +59,10 @@ async function cargarPartidos(){
 
 try{
 
+const proxy="https://corsproxy.io/?";
+
 const res=await fetch(
-"https://api.football-data.org/v4/matches",
+proxy+encodeURIComponent("https://api.football-data.org/v4/matches"),
 {
 headers:{
 "X-Auth-Token":API_TOKEN
@@ -70,36 +72,28 @@ headers:{
 
 const data=await res.json();
 
-console.log(data);
-
-if(!data.matches){
-
-document.getElementById("matches").innerHTML=
-"<h2 style='color:red'>La API no devolvió partidos.</h2>";
-
-return;
-}
-
 let html="";
 
-data.matches.slice(0,20).forEach(partido=>{
+data.matches.slice(0,10).forEach(p=>{
 
 html+=`
-<div class="card">
+<div style="
+background:#26478d;
+margin:15px;
+padding:20px;
+border-radius:15px;
+">
 
-<h2>${partido.homeTeam.name}</h2>
+<h2>${p.homeTeam.name}</h2>
+<h2>${p.awayTeam.name}</h2>
 
-<h2>${partido.awayTeam.name}</h2>
-
-<div class="score">
-${partido.score.fullTime.home ?? "-"} 
+<h1>
+${p.score.fullTime.home ?? "-"}
 -
-${partido.score.fullTime.away ?? "-"}
-</div>
+${p.score.fullTime.away ?? "-"}
+</h1>
 
-<p>${partido.status}</p>
-
-<p>${new Date(partido.utcDate).toLocaleString("es-PE")}</p>
+<p>${p.status}</p>
 
 </div>
 `;
@@ -108,12 +102,10 @@ ${partido.score.fullTime.away ?? "-"}
 
 document.getElementById("matches").innerHTML=html;
 
-}catch(error){
-
-console.log(error);
+}catch(e){
 
 document.getElementById("matches").innerHTML=
-"<h2 style='color:red'>ERROR: "+error+"</h2>";
+"<h2 style='color:red'>"+e+"</h2>";
 
 }
 
