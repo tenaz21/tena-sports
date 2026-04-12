@@ -13,6 +13,7 @@ background:#021427;
 font-family:Arial;
 color:white;
 }
+
 .header{
 background:linear-gradient(90deg,#004cff,#39a9ff);
 padding:25px;
@@ -20,38 +21,45 @@ font-size:32px;
 font-weight:bold;
 text-align:center;
 }
+
 .banner{
 background:red;
 padding:20px;
 font-size:24px;
 font-weight:bold;
 }
+
 #matches{
 padding:20px;
 }
+
 .card{
 background:#26478d;
 padding:20px;
 margin-bottom:15px;
 border-radius:15px;
 }
+
 .score{
-font-size:40px;
+font-size:35px;
 font-weight:bold;
 margin-top:10px;
 }
 </style>
 </head>
+
 <body>
 
 <div class="header">⚽ TENA SPORTS</div>
-<div class="banner">🔥 HOY: Resultados deportivos EN VIVO</div>
+
+<div class="banner">
+🔥 HOY: Resultados deportivos EN VIVO
+</div>
 
 <div id="matches">
 Cargando partidos...
 </div>
 
-<script>
 <script>
 
 async function cargarPartidos(){
@@ -74,7 +82,7 @@ html += `
 <h2>${p.strAwayTeam}</h2>
 
 <div class="score">
-${p.intHomeScore ?? "-"} - ${p.intAwayScore ?? "-"}
+${p.intHomeScore} - ${p.intAwayScore}
 </div>
 
 <p>${p.dateEvent}</p>
@@ -83,12 +91,12 @@ ${p.intHomeScore ?? "-"} - ${p.intAwayScore ?? "-"}
 
 });
 
-document.getElementById("matches").innerHTML=html;
+document.getElementById("matches").innerHTML = html;
 
 }catch(error){
 
-document.getElementById("matches").innerHTML=
-"<h2 style='color:red'>"+error+"</h2>";
+document.getElementById("matches").innerHTML =
+"<h2 style='color:red'>ERROR: "+error+"</h2>";
 
 }
 
