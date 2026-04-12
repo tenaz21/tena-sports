@@ -195,16 +195,18 @@ return d.toISOString().split("T")[0];
 }
 
 function formatearFecha(fecha){
-let d=new Date(fecha);
 
-return d.toLocaleDateString("es-ES",{
+let d = new Date(fecha);
+
+return d.toLocaleString("es-PE",{
+timeZone:"America/Lima",
 day:"numeric",
-month:"short"
-})+" - "+
-d.toLocaleTimeString("es-ES",{
+month:"short",
 hour:"numeric",
-minute:"2-digit"
+minute:"2-digit",
+hour12:true
 });
+
 }
 
 function tiempoRestante(fecha){
