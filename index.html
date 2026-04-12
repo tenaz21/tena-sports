@@ -184,72 +184,46 @@ html+=`
 
 <br>
 
-<div>${home}</div>
-<div>${away}</div>
+<script>
+const API_KEY="TU_API_KEY";
 
-<div class="score">
-${hs} - ${as}
-</div>
+async function probarAPI(){
 
-<div>
-⏱ ${
-vivo
-? p.match_status.live_time
-: new Date(p.match_date).toLocaleString("es-PE",{
-timeZone:"America/Lima"
-})
+try{
+
+const res = await fetch(
+"https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=" + new Date().toISOString().split("T")[0],
+{
+headers:{
+"x-rapidapi-key":API_KEY,
+"x-rapidapi-host":"livescore67.p.rapidapi.com"
 }
-</div>
+}
+);
 
-</div>
+const data = await res.json();
 
+console.log("RESPUESTA COMPLETA:", data);
+
+document.body.innerHTML += `
+<pre style="white-space:pre-wrap;color:white;padding:20px;">
+${JSON.stringify(data,null,2)}
+</pre>
 `;
 
-});
+}catch(err){
 
-});
-
-document.getElementById("matches").innerHTML=html;
-
-}
-
-function verEnVivo(btn){
-
-if(btn)activar(btn);
-
-document.getElementById("tituloBanner").innerHTML=
-"🔥 HOY: Resultados deportivos EN VIVO";
-
-render(todosPartidos,"live");
+document.body.innerHTML += `
+<h2 style="color:red;padding:20px;">
+ERROR: ${err}
+</h2>
+`;
 
 }
 
-function verProximos(btn){
-
-if(btn)activar(btn);
-
-document.getElementById("tituloBanner").innerHTML=
-"📅 Próximos partidos";
-
-render(todosPartidos,"next");
-
 }
 
-function verFinalizados(btn){
-
-if(btn)activar(btn);
-
-document.getElementById("tituloBanner").innerHTML=
-"✅ Partidos Finalizados";
-
-render(todosPartidos,"finished");
-
-}
-
-cargarTodo();
-
-setInterval(cargarTodo,30000);
-
+probarAPI();
 </script>
 
 </body>
