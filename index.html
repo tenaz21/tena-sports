@@ -42,12 +42,7 @@ padding:12px 18px;
 color:white;
 border-radius:30px;
 font-weight:bold;
-cursor:pointer;
 min-width:100px;
-}
-
-.menu button:hover{
-background:#2563eb;
 }
 
 .container{
@@ -73,23 +68,30 @@ font-size:15px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:15px;
-font-size:22px;
-font-weight:bold;
+margin-bottom:20px;
 }
 
 .team{
 display:flex;
 align-items:center;
 gap:10px;
+font-size:20px;
+font-weight:bold;
+width:40%;
+}
+
+.team img{
+width:35px;
+height:35px;
+object-fit:contain;
 }
 
 .score{
 text-align:center;
-font-size:30px;
+font-size:32px;
 font-weight:bold;
-margin:15px 0;
 color:#3b82f6;
+margin-bottom:10px;
 }
 
 .info{
@@ -119,8 +121,15 @@ font-size:14px;
 <div class="card">
 <div class="live">🔴 EN VIVO</div>
 <div class="teams">
-<div class="team">⚪ Real Madrid</div>
-<div class="team">🔵 Barcelona</div>
+<div class="team">
+<img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg">
+Real Madrid
+</div>
+
+<div class="team" style="justify-content:flex-end;">
+Barcelona
+<img src="https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg">
+</div>
 </div>
 <div class="score">2 - 1</div>
 <div class="info">Minuto 78</div>
@@ -129,8 +138,15 @@ font-size:14px;
 <div class="card">
 <div class="live">🔴 EN VIVO</div>
 <div class="teams">
-<div class="team">🎾 Djokovic</div>
-<div class="team">🎾 Nadal</div>
+<div class="team">
+<img src="https://cdn-icons-png.flaticon.com/512/2965/2965567.png">
+Djokovic
+</div>
+
+<div class="team" style="justify-content:flex-end;">
+Nadal
+<img src="https://cdn-icons-png.flaticon.com/512/2965/2965567.png">
+</div>
 </div>
 <div class="score">1 - 0</div>
 <div class="info">Segundo Set</div>
@@ -139,7 +155,21 @@ font-size:14px;
 <div class="card">
 <div class="live">🔴 EN VIVO</div>
 <div class="teams">
-<div class="team">🥊 McGregor</div>
-<div class="team">🥊 Diaz</div>
+<div class="team">
+<img src="https://cdn-icons-png.flaticon.com/512/3114/3114978.png">
+McGregor
 </div>
-<div class="score">Round
+
+<div class="team" style="justify-content:flex-end;">
+Diaz
+<img src="https://cdn-icons-png.flaticon.com/512/3114/3114978.png">
+</div>
+</div>
+<div class="score">Round 2</div>
+<div class="info">UFC Main Event</div>
+</div>
+
+</div>
+
+</body>
+</html>
