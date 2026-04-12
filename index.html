@@ -118,6 +118,7 @@ function cargarPartidos(){
 
 fetch("https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",{
 method:"GET",
+cache:"no-store",
 headers:{
 "x-rapidapi-key":apiKey,
 "x-rapidapi-host":"livescore67.p.rapidapi.com"
@@ -188,9 +189,8 @@ document.getElementById("matches").innerHTML=
 
 cargarPartidos();
 
-setInterval(cargarPartidos,30000);
+setInterval(cargarPartidos,10000);
 
 </script>
-
 </body>
 </html>
