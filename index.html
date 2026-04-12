@@ -80,11 +80,11 @@ Cargando partidos...
 <script>
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-fetch("https://livescore6.p.rapidapi.com/matches/v2/list-live?Category=soccer", {
+fetch("https://livescore67.p.rapidapi.com/sport/list", {
 method: "GET",
 headers: {
 "x-rapidapi-key": apiKey,
-"x-rapidapi-host": "livescore6.p.rapidapi.com"
+"x-rapidapi-host": "livescore67.p.rapidapi.com"
 }
 })
 .then(response => response.json())
@@ -92,37 +92,21 @@ headers: {
 
 console.log(data);
 
-let partidos = data.Stages[0].Events;
-
-let html = "";
-
-partidos.slice(0,5).forEach(partido => {
-
-html += `
+document.getElementById("matches").innerHTML = `
 <div class="card">
-
-<div class="live">🔴 EN VIVO</div>
-
+<div class="live">🟢 API CONECTADA</div>
 <div class="match">
-<span>${partido.T1[0].Nm}</span>
-<span>${partido.T2[0].Nm}</span>
+<span>LiveScore</span>
+<span>Funcionando</span>
 </div>
-
-<div class="score">
-${partido.Tr1} - ${partido.Tr2}
-</div>
-
+<div class="score">✔</div>
 </div>
 `;
 
-});
-
-document.getElementById("matches").innerHTML = html;
-
 })
 .catch(error => {
+document.getElementById("matches").innerHTML = "Error cargando API";
 console.log(error);
-document.getElementById("matches").innerHTML = "Error cargando partidos";
 });
 </script>
 
