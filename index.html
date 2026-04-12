@@ -56,9 +56,7 @@ border-radius:20px;
 
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-const hoy = new Date().toISOString().split("T")[0];
-
-fetch(`https://livescore67.p.rapidapi.com/matches/v2/list-by-date?Category=soccer&Date=${hoy}`,{
+fetch("https://livescore67.p.rapidapi.com/sports",{
 method:"GET",
 headers:{
 "x-rapidapi-key":apiKey,
@@ -68,27 +66,27 @@ headers:{
 .then(response=>response.json())
 .then(data=>{
 
+console.log(data);
+
 let html="";
 
-if(data.Stages && data.Stages.length>0){
+if(data && data.length>0){
 
-data.Stages.forEach(stage=>{
+data.forEach(deporte=>{
 
-stage.Events.forEach(partido=>{
-
-html+=`
+html += `
 <div class="card">
-<h2>${partido.T1[0].Nm} vs ${partido.T2[0].Nm}</h2>
-<p>📅 Programado hoy</p>
+<h2>${deporte.Name}</h2>
+<p>ID: ${deporte.Id}</p>
 </div>
 `;
 
 });
 
-});
-
 }else{
-html="<h2>No hay partidos hoy</h2>";
+
+html="<h2>No se encontraron deportes</h2>";
+
 }
 
 document.getElementById("matches").innerHTML=html;
