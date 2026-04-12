@@ -177,6 +177,139 @@ bloque+=`
 <div class="card">
 
 <h2>
+<script>
+
+const API_KEY="TU_API_KEY";
+
+let partidos=[];
+
+async function cargarPartidos(){
+
+try{
+
+document.getElementById("matches").innerHTML=
+"<h2 style='padding:20px'>Cargando partidos...</h2>";
+
+const fecha=new Date().toISOString().split("T")[0];
+
+const res=await fetch(
+`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`,
+{
+headers:{
+"x-rapidapi-key":API_KEY,
+"x-rapidapi-host":"livescore67.p.rapidapi.com"
+}
+}
+);
+
+const data=await res.json();
+
+console.log("API COMPLETA:",data);
+
+partidos = [];
+
+/* DETECTA TODAS LAS ESTRUCTURAS POSIBLES */
+
+if(Array.isArray(data)){
+
+partidos=data;
+
+}
+
+else if(Array.isArray(data.data)){
+
+partidos=data.data;
+
+}
+
+else if(Array.isArray(data.matches)){
+
+partidos=data.matches;
+
+}
+
+else if(Array.isArray(data.results)){
+
+partidos=data.results;
+
+}
+
+else if(data.data?.matches){
+
+partidos=[{
+stage:{stage_name:"Partidos"},
+matches:data.data.matches
+}];
+
+}
+
+else{
+
+document.getElementById("matches").innerHTML=
+`
+<h2 style="padding:20px;color:red;">
+LA API RESPONDIÓ PERO CON FORMATO DESCONOCIDO
+</h2>
+
+<pre style="padding:20px;color:yellow;font-size:12px;">
+${JSON.stringify(data,null,2)}
+</pre>
+`;
+
+return;
+
+}
+
+mostrarLive();
+
+}catch(err){
+
+document.getElementById("matches").innerHTML=
+`
+<h2 style="padding:20px;color:red;">
+ERROR API:
+</h2>
+
+<pre style="padding:20px;color:yellow;">
+${err}
+</pre>
+`;
+
+}
+
+}
+
+function render(tipo){
+
+let html="";
+let contador=0;
+
+partidos.forEach(liga=>{
+
+let nombreLiga=liga.stage?.stage_name||"Liga";
+
+let matches=liga.matches||[];
+
+if(!matches.length)return;
+
+let cards="";
+
+matches.forEach(p=>{
+
+let vivo=p.match_status?.live===1||p.live===1;
+let finalizado=p.match_status?.finished===1||p.finished===1;
+
+if(tipo==="live"&&!vivo)return;
+if(tipo==="next"&&(vivo||finalizado))return;
+if(tipo==="finished"&&!finalizado)return;
+
+contador++;
+
+cards+=`
+
+<div class="card">
+
+<h2>
 ${
 tipo==="live"
 ?"🔴 EN VIVO"
@@ -188,43 +321,42 @@ tipo==="live"
 
 <br>
 
-<div>${p.team_home?.[0]?.team_name||"-"}</div>
-<div>${p.team_away?.[0]?.team_name||"-"}</div>
+<div>${p.team_home?.[0]?.team_name||p.home_name||"-"}</div>
+<div>${p.team_away?.[0]?.team_name||p.away_name||"-"}</div>
 
 <div class="score">
-${p.scores?.home??"-"} - ${p.scores?.away??"-"}
+${p.scores?.home??p.home_score??"-"} -
+${p.scores?.away??p.away_score??"-"}
 </div>
 
 <div>
 ⏱ ${
 vivo
 ?p.match_status?.live_time||"En juego"
-:new Date(p.match_date).toLocaleString("es-PE",{
+:new Date(p.match_date||p.date).toLocaleString("es-PE",{
 timeZone:"America/Lima"
 })
 }
 </div>
 
 </div>
+
 `;
 
 });
 
-if(bloque){
+if(cards){
 
 html+=`
-<div class="liga">
-🏆 ${liga.stage?.stage_name||"Liga"}
-</div>
-
-${bloque}
+<div class="liga">🏆 ${nombreLiga}</div>
+${cards}
 `;
 
 }
 
 });
 
-if(encontrados===0){
+if(contador===0){
 
 html="<h2 style='padding:20px'>No hay partidos disponibles</h2>";
 
@@ -234,9 +366,7 @@ document.getElementById("matches").innerHTML=html;
 
 }
 
-function mostrarLive(btn){
-
-if(btn)activar(btn);
+function mostrarLive(){
 
 document.getElementById("banner").innerHTML=
 "🔥 HOY: Resultados deportivos EN VIVO";
@@ -245,9 +375,7 @@ render("live");
 
 }
 
-function mostrarNext(btn){
-
-if(btn)activar(btn);
+function mostrarNext(){
 
 document.getElementById("banner").innerHTML=
 "📅 Próximos partidos";
@@ -256,9 +384,7 @@ render("next");
 
 }
 
-function mostrarFinished(btn){
-
-if(btn)activar(btn);
+function mostrarFinished(){
 
 document.getElementById("banner").innerHTML=
 "✅ Partidos Finalizados";
