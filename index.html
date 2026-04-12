@@ -61,6 +61,9 @@ cursor:pointer;
 .active{
 color:#00bfff;
 }
+.live{
+box-shadow:0 0 20px #00ff99;
+}
 </style>
 </head>
 <body>
@@ -83,32 +86,20 @@ color:#00bfff;
 
 const API_KEY="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-let modoActual="live";
+let todosPartidos=[];
 
 function activar(btn){
 document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));
 btn.classList.add("active");
 }
 
-function fechaOffset(dias){
-let d=new Date();
-d.setDate(d.getDate()+dias);
-return d.toISOString().split("T")[0];
+function fechaHoy(){
+return new Date().toISOString().split("T")[0];
 }
 
-async function obtener(fecha=null,enVivo=false){
+async function cargarTodo(){
 
-let url="";
-
-if(enVivo){
-
-url="https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football";
-
-}else{
-
-url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`;
-
-}
+let url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fechaHoy()}`;
 
 const res=await fetch(url,{
 headers:{
@@ -117,23 +108,19 @@ headers:{
 }
 });
 
-let json=await res.json();
+let data=await res.json();
 
-console.log(json);
+console.log(data);
 
-let partidos=
-json.data ||
-json.Stages ||
-json.stages ||
-json;
+todosPartidos=data.data||data||[];
 
-render(partidos);
+verEnVivo();
 
 }
 
-function render(data){
+function render(lista,tipo){
 
-if(!Array.isArray(data)||data.length===0){
+if(!lista.length){
 
 document.getElementById("matches").innerHTML=
 "<h2 style='padding:20px'>No hay partidos disponibles</h2>";
@@ -144,61 +131,74 @@ return;
 
 let html="";
 
-data.forEach(liga=>{
+lista.forEach(liga=>{
 
-let matches=
-liga.matches ||
-liga.Events ||
-[];
-
-if(matches.length===0)return;
+if(!liga.matches)return;
 
 html+=`
 <div class="liga">
-🏆 ${liga.stage?.stage_name || liga.Snm || "Liga"}
+🏆 ${liga.stage.stage_name}
 </div>
 `;
 
-matches.forEach(p=>{
+liga.matches.forEach(p=>{
 
-let home=
-p.team_home?.[0]?.team_name ||
-p.T1?.[0]?.Nm ||
-"-";
+let home=p.team_home?.[0]?.team_name||"-";
+let away=p.team_away?.[0]?.team_name||"-";
 
-let away=
-p.team_away?.[0]?.team_name ||
-p.T2?.[0]?.Nm ||
-"-";
+let hs=p.scores?.home??"-";
+let as=p.scores?.away??"-";
 
-let hs=
-p.scores?.home ||
-p.Tr1 ||
-"-";
+let vivo=p.match_status?.live===1;
 
-let as=
-p.scores?.away ||
-p.Tr2 ||
-"-";
+let finalizado=p.match_status?.finished===1;
+
+let clase="";
+
+let estado="";
+
+if(vivo){
+
+estado="🔴 EN VIVO";
+clase="live";
+
+}else if(finalizado){
+
+estado="✅ FINALIZADO";
+
+}else{
+
+estado="📅 PRÓXIMO";
+
+}
+
+if(tipo==="live"&&!vivo)return;
+if(tipo==="next"&&(vivo||finalizado))return;
+if(tipo==="finished"&&!finalizado)return;
 
 html+=`
 
-<div class="card">
+<div class="card ${clase}">
 
-<div>
-${modoActual==="live"?"🔴 EN VIVO":
-modoActual==="next"?"📅 PRÓXIMO":
-"✅ FINALIZADO"}
-</div>
+<h2>${estado}</h2>
 
 <br>
 
 <div>${home}</div>
-
 <div>${away}</div>
 
 <div class="score">
 ${hs} - ${as}
+</div>
+
+<div>
+⏱ ${
+vivo
+? p.match_status.live_time
+: new Date(p.match_date).toLocaleString("es-PE",{
+timeZone:"America/Lima"
+})
+}
 </div>
 
 </div>
@@ -215,35 +215,40 @@ document.getElementById("matches").innerHTML=html;
 
 function verEnVivo(btn){
 
-modoActual="live";
+if(btn)activar(btn);
 
-activar(btn);
+document.getElementById("tituloBanner").innerHTML=
+"🔥 HOY: Resultados deportivos EN VIVO";
 
-obtener(null,true);
+render(todosPartidos,"live");
 
 }
 
 function verProximos(btn){
 
-modoActual="next";
+if(btn)activar(btn);
 
-activar(btn);
+document.getElementById("tituloBanner").innerHTML=
+"📅 Próximos partidos";
 
-obtener(fechaOffset(1));
+render(todosPartidos,"next");
 
 }
 
 function verFinalizados(btn){
 
-modoActual="finished";
+if(btn)activar(btn);
 
-activar(btn);
+document.getElementById("tituloBanner").innerHTML=
+"✅ Partidos Finalizados";
 
-obtener(fechaOffset(-1));
+render(todosPartidos,"finished");
 
 }
 
-verEnVivo();
+cargarTodo();
+
+setInterval(cargarTodo,30000);
 
 </script>
 
