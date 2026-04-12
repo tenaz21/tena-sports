@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>TENA SPORTS</title>
 
 <style>
@@ -15,9 +16,9 @@ padding-bottom:90px;
 }
 
 .header{
-background:linear-gradient(90deg,#005eff,#42b3ff);
+background:linear-gradient(90deg,#0057ff,#45b0ff);
 padding:25px;
-font-size:32px;
+font-size:30px;
 font-weight:bold;
 text-align:center;
 }
@@ -25,56 +26,60 @@ text-align:center;
 .banner{
 background:red;
 padding:20px;
-font-size:24px;
+font-size:22px;
 font-weight:bold;
 }
 
 #matches{
-padding:15px;
+padding:20px;
 }
 
 .card{
-background:#26478d;
-padding:20px;
+background:#3051a3;
+padding:25px;
 margin-bottom:20px;
-border-radius:20px;
-cursor:pointer;
+border-radius:25px;
 }
 
 .team{
 display:flex;
 align-items:center;
-gap:10px;
+gap:15px;
 font-size:22px;
 font-weight:bold;
-margin:10px 0;
-}
-
-.team img{
-width:35px;
-}
-
-.score{
-font-size:42px;
-font-weight:bold;
-color:#00ff88;
 margin:15px 0;
 }
 
-.bottom-nav{
+.team img{
+width:40px;
+height:40px;
+}
+
+.score{
+font-size:55px;
+font-weight:bold;
+color:#00ff88;
+margin:20px 0;
+}
+
+.bottom-menu{
 position:fixed;
 bottom:0;
-left:0;
-right:0;
-background:#00172d;
+width:100%;
 display:flex;
 justify-content:space-around;
-padding:15px;
+background:#02213d;
+padding:15px 0;
+font-size:18px;
 font-weight:bold;
 }
 
-.bottom-nav div{
-cursor:pointer;
+.bottom-menu button{
+background:none;
+border:none;
+color:white;
+font-size:18px;
+font-weight:bold;
 }
 </style>
 </head>
@@ -85,19 +90,20 @@ cursor:pointer;
 
 <div id="matches">Cargando...</div>
 
-<div class="bottom-nav">
-<div onclick="cargarEnVivo()">🔴<br>En Vivo</div>
-<div onclick="cargarProximos()">📅<br>Próximos</div>
-<div onclick="cargarFinalizados()">✅<br>Finalizados</div>
+<div class="bottom-menu">
+<button onclick="cargarEnVivo()">🔴<br>En Vivo</button>
+<button onclick="cargarProximos()">📅<br>Próximos</button>
+<button onclick="cargarFinalizados()">✅<br>Finalizados</button>
 </div>
 
 <script>
 
 const API_KEY="3cc8bf02536b52d0ecc667afdfd2859c";
 
-async function obtener(endpoint){
+async function consultar(url){
 
-const res=await fetch(endpoint,{
+const res=await fetch(url,{
+method:"GET",
 headers:{
 "x-apisports-key":API_KEY
 }
@@ -116,7 +122,33 @@ document.getElementById("matches").innerHTML="<h2>No hay partidos disponibles</h
 return;
 }
 
+if(tipo==="proximo"){
+data.response.sort((a,b)=>
+new Date(a.fixture.date)-new Date(b.fixture.date)
+);
+}
+
 data.response.forEach(partido=>{
+
+let extra="";
+
+if(tipo==="vivo"){
+extra=`⏱ ${partido.fixture.status.elapsed}'`;
+}
+
+if(tipo==="proximo"){
+extra=`📅 ${new Date(partido.fixture.date).toLocaleString("es-PE",{
+timeZone:"America/Lima",
+day:"2-digit",
+month:"2-digit",
+hour:"2-digit",
+minute:"2-digit"
+})}`;
+}
+
+if(tipo==="final"){
+extra=`✅ Finalizado`;
+}
 
 html+=`
 
@@ -138,11 +170,7 @@ ${partido.goals.home ?? "-"} - ${partido.goals.away ?? "-"}
 
 <p>🏆 ${partido.league.name}</p>
 
-<p>
-${tipo==="vivo"
-? "⏱ "+partido.fixture.status.elapsed+"'"
-: "📅 "+new Date(partido.fixture.date).toLocaleString()}
-</p>
+<p>${extra}</p>
 
 </div>
 
@@ -158,11 +186,17 @@ async function cargarEnVivo(){
 
 document.getElementById("matches").innerHTML="Cargando en vivo...";
 
-const data=await obtener(
+try{
+
+const data=await consultar(
 "https://v3.football.api-sports.io/fixtures?live=all"
 );
 
 renderizar(data,"vivo");
+
+}catch{
+document.getElementById("matches").innerHTML="Error cargando partidos";
+}
 
 }
 
@@ -170,13 +204,17 @@ async function cargarProximos(){
 
 document.getElementById("matches").innerHTML="Cargando próximos...";
 
-const hoy=new Date().toISOString().split("T")[0];
+try{
 
-const data=await obtener(
-`https://v3.football.api-sports.io/fixtures?date=${hoy}&status=NS`
+const data=await consultar(
+"https://v3.football.api-sports.io/fixtures?next=20"
 );
 
 renderizar(data,"proximo");
+
+}catch{
+document.getElementById("matches").innerHTML="Error cargando partidos";
+}
 
 }
 
@@ -184,19 +222,25 @@ async function cargarFinalizados(){
 
 document.getElementById("matches").innerHTML="Cargando finalizados...";
 
-const hoy=new Date().toISOString().split("T")[0];
+try{
 
-const data=await obtener(
-`https://v3.football.api-sports.io/fixtures?date=${hoy}&status=FT`
+const data=await consultar(
+"https://v3.football.api-sports.io/fixtures?last=20"
 );
 
 renderizar(data,"final");
+
+}catch{
+document.getElementById("matches").innerHTML="Error cargando partidos";
+}
 
 }
 
 cargarEnVivo();
 
-setInterval(cargarEnVivo,300000);
+setInterval(()=>{
+cargarEnVivo();
+},60000);
 
 </script>
 
