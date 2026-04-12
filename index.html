@@ -3,17 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>TENA SPORTS</title>
 
 <style>
 body{
 margin:0;
 background:#021427;
-font-family:Arial,sans-serif;
+font-family:Arial;
 color:white;
+padding-bottom:30px;
 }
-
 .header{
 background:linear-gradient(90deg,#0055ff,#39a9ff);
 padding:25px;
@@ -21,124 +20,148 @@ font-size:32px;
 font-weight:bold;
 text-align:center;
 }
-
-.banner{
-background:red;
+.section{
 padding:20px;
-font-size:24px;
+font-size:26px;
 font-weight:bold;
 }
-
-#matches{
-padding:20px;
-}
-
 .card{
 background:#2e4f9e;
+margin:15px;
 padding:20px;
-margin-bottom:20px;
 border-radius:20px;
-box-shadow:0 5px 15px rgba(0,0,0,0.3);
+box-shadow:0 5px 15px rgba(0,0,0,.35);
 }
-
+.live{
+border-left:8px solid red;
+}
+.finished{
+border-left:8px solid lime;
+}
+.next{
+border-left:8px solid orange;
+}
 .team{
-font-size:28px;
+font-size:24px;
 font-weight:bold;
-margin-bottom:10px;
+margin:5px 0;
 }
-
 .score{
-font-size:45px;
+font-size:35px;
 font-weight:bold;
 margin:15px 0;
 }
-
-.date{
-font-size:20px;
-opacity:0.8;
-}
-
-.loading{
-font-size:28px;
-padding:20px;
-}
-
-.error{
-color:red;
-font-size:28px;
-padding:20px;
+.time{
+opacity:.85;
 }
 </style>
 </head>
-
 <body>
 
-<div class="header">
-⚽ TENA SPORTS
-</div>
+<div class="header">⚽ TENA SPORTS</div>
 
-<div class="banner">
-🔥 HOY: Resultados deportivos EN VIVO
-</div>
-
-<div id="matches" class="loading">
-Cargando partidos...
+<div id="app">
+<div class="section">Cargando partidos...</div>
 </div>
 
 <script>
 
-async function cargarPartidos(){
-
-try{
-
-const res = await fetch(
-"https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328"
-);
-
-const data = await res.json();
+async function cargarTodo(){
 
 let html="";
 
-data.events.forEach(partido=>{
+try{
 
-html += `
-<div class="card">
+/* EN VIVO */
+const liveRes=await fetch("https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Soccer");
+const liveData=await liveRes.json();
 
-<div class="team">
-${partido.strHomeTeam}
-</div>
+html+=`<div class="section">🔴 EN VIVO</div>`;
 
-<div class="team">
-${partido.strAwayTeam}
-</div>
+if(liveData.events && liveData.events.length){
 
-<div class="score">
-VS
-</div>
+liveData.events.forEach(p=>{
 
-<div class="date">
-📅 ${partido.dateEvent}
-<br><br>
-🕒 ${partido.strTime}
-</div>
-
+html+=`
+<div class="card live">
+<div class="team">${p.strHomeTeam}</div>
+<div class="team">${p.strAwayTeam}</div>
+<div class="score">${p.intHomeScore ?? "-"} - ${p.intAwayScore ?? "-"}</div>
+<div class="time">⏱ En juego</div>
 </div>
 `;
 
 });
 
-document.getElementById("matches").innerHTML = html;
+}else{
 
-}catch(error){
+html+=`<div class="card live">No hay partidos en vivo.</div>`;
 
-document.getElementById("matches").innerHTML =
-"<div class='error'>ERROR: "+error+"</div>";
+}
+
+
+/* PRÓXIMOS */
+const nextRes=await fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328");
+const nextData=await nextRes.json();
+
+html+=`<div class="section">📅 PRÓXIMOS</div>`;
+
+if(nextData.events){
+
+nextData.events.slice(0,5).forEach(p=>{
+
+html+=`
+<div class="card next">
+<div class="team">${p.strHomeTeam}</div>
+<div class="team">${p.strAwayTeam}</div>
+<div class="score">VS</div>
+<div class="time">${p.dateEvent} - ${p.strTime}</div>
+</div>
+`;
+
+});
+
+}
+
+
+/* FINALIZADOS */
+const finRes=await fetch("https://www.thesportsdb.com/api/v1/json/3/eventslastleague.php?id=4328");
+const finData=await finRes.json();
+
+html+=`<div class="section">✅ FINALIZADOS</div>`;
+
+if(finData.events){
+
+finData.events.slice(0,5).forEach(p=>{
+
+html+=`
+<div class="card finished">
+<div class="team">${p.strHomeTeam}</div>
+<div class="team">${p.strAwayTeam}</div>
+<div class="score">${p.intHomeScore} - ${p.intAwayScore}</div>
+<div class="time">${p.dateEvent}</div>
+</div>
+`;
+
+});
+
+}
+
+document.getElementById("app").innerHTML=html;
+
+}catch(e){
+
+document.getElementById("app").innerHTML=
+"<div class='section'>Error cargando datos</div>";
 
 }
 
 }
 
-cargarPartidos();
+cargarTodo();
+
+/* refresco automático */
+setInterval(cargarTodo,30000);
 
 </script>
 
