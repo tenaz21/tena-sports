@@ -13,51 +13,67 @@ const opciones = {
 
 async function obtenerDatos() {
     try {
-        const res = await fetch(API_URL, opciones);
-        const data = await res.json();
+        const respuesta = await fetch(API_URL, opciones);
+        const data = await respuesta.json();
 
-        console.log(data);
+        console.log("DATOS API:", data);
 
-        return data.response.live || [];
+        if (
+            data &&
+            data.response &&
+            data.response.live &&
+            Array.isArray(data.response.live)
+        ) {
+            return data.response.live;
+        }
+
+        return [];
+
     } catch (error) {
-        console.error(error);
+        console.error("ERROR API:", error);
         return [];
     }
 }
 
 async function cargarEnVivo() {
-    const partidos = await obtenerDatos();
-
     const contenido = document.getElementById("contenido");
 
-    if (!partidos.length) {
+    contenido.innerHTML = "<h2>Cargando...</h2>";
+
+    const partidos = await obtenerDatos();
+
+    if (partidos.length === 0) {
         contenido.innerHTML = "<h2>No hay partidos en vivo.</h2>";
         return;
     }
 
-    contenido.innerHTML = partidos.map(partido => `
-        <div class="card">
-            <h2>${partido.home.name}</h2>
-            <h2>${partido.away.name}</h2>
+    contenido.innerHTML = "";
 
-            <div class="score">
-                ${partido.home.score} - ${partido.away.score}
+    partidos.forEach(partido => {
+        contenido.innerHTML += `
+            <div class="card">
+                <h2>${partido.home.name}</h2>
+                <h2>${partido.away.name}</h2>
+
+                <div class="score">
+                    ${partido.home.score} - ${partido.away.score}
+                </div>
+
+                <p>🏆 Liga ID: ${partido.leagueId}</p>
+                <p>⏰ ${partido.time}</p>
             </div>
-
-            <p>🏆 Liga ID: ${partido.leagueId}</p>
-            <p>⏰ ${partido.time}</p>
-        </div>
-    `).join("");
+        `;
+    });
 }
 
-async function cargarProximos() {
+function cargarProximos() {
     document.getElementById("contenido").innerHTML =
         "<h2>Próximamente disponible.</h2>";
 }
 
-async function cargarFinalizados() {
+function cargarFinalizados() {
     document.getElementById("contenido").innerHTML =
-        "<h2>Finalizados próximamente disponible.</h2>";
+        "<h2>Finalizados próximamente.</h2>";
 }
 
 async function cargarPaises() {
@@ -67,10 +83,8 @@ async function cargarPaises() {
 
     document.getElementById("contenido").innerHTML =
         ligas.map(liga => `
-            <div class="card">
-                🏆 Liga ${liga}
-            </div>
+            <div class="card">🏆 Liga ${liga}</div>
         `).join("");
 }
 
-cargarEnVivo();
+window.onload = cargarEnVivo;
