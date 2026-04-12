@@ -180,6 +180,7 @@ animation:pulse 1s infinite;
 <script>
 
 const API_KEY="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
+
 let modoActual="live";
 
 function activar(btn){
@@ -209,7 +210,6 @@ let ahora=new Date();
 let partido=new Date(fecha);
 let diff=partido-ahora;
 let horas=Math.floor(diff/1000/60/60);
-
 return "⏳ Faltan "+horas+" horas";
 }
 
@@ -223,13 +223,9 @@ async function obtener(fecha,enVivo=false){
 let url="";
 
 if(enVivo){
-
 url="https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football";
-
 }else{
-
 url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`;
-
 }
 
 const res=await fetch(url,{
@@ -262,24 +258,50 @@ let partidosFiltrados=[];
 
 liga.matches?.forEach(p=>{
 
-let status=(p.match_status?.status||"").toUpperCase();
+let status=(
+p.match_status?.status_name ||
+p.match_status?.name ||
+p.match_status?.status ||
+""
+).toUpperCase();
 
 if(modoActual==="live"){
-if(status.includes("LIVE")||status.includes("1H")||status.includes("2H")||status.includes("HT")){
+
+if(
+status.includes("LIVE") ||
+status.includes("HALF") ||
+status.includes("1H") ||
+status.includes("2H") ||
+status.includes("HT") ||
+status.includes("IN PLAY")
+){
 partidosFiltrados.push(p);
 }
+
 }
 
 if(modoActual==="next"){
-if(status==="NS"||status==="NOT STARTED"){
+
+if(
+status.includes("NOT STARTED") ||
+status.includes("NS") ||
+status.includes("UPCOMING")
+){
 partidosFiltrados.push(p);
 }
+
 }
 
 if(modoActual==="finished"){
-if(status==="FT"||status.includes("FINISHED")){
+
+if(
+status.includes("FINISHED") ||
+status.includes("FT") ||
+status.includes("ENDED")
+){
 partidosFiltrados.push(p);
 }
+
 }
 
 });
@@ -325,11 +347,14 @@ estado="✅ FINALIZADO";
 html+=`
 
 <div class="card" style="${glow}">
+
 <div class="estado">${estado}</div>
 
 <div style="${hs>as?"color:#00ff88;font-weight:bold":""}">
 ${home}
-</div><br>
+</div>
+
+<br>
 
 <div style="${as>hs?"color:#00ff88;font-weight:bold":""}">
 ${away}
@@ -347,9 +372,12 @@ modoActual==="live"
 }
 </div>
 
-${modoActual==="next"?"<br>"+tiempoRestante(p.match_date):""}
+${modoActual==="next"
+? "<br>"+tiempoRestante(p.match_date)
+: ""}
 
-<button class="detBtn" onclick="toggleDetalles('det"+c+"')">
+<button class="detBtn"
+onclick="toggleDetalles('det${c}')">
 Ver detalles
 </button>
 
@@ -377,29 +405,28 @@ document.getElementById("matches").innerHTML=html;
 
 function verEnVivo(btn){
 modoActual="live";
-activar(btn);
 document.getElementById("tituloBanner").innerHTML="🔥 HOY: Resultados deportivos EN VIVO";
+if(btn) activar(btn);
 obtener(null,true);
 }
 
 function verProximos(btn){
 modoActual="next";
-activar(btn);
 document.getElementById("tituloBanner").innerHTML="📅 Próximos partidos";
+if(btn) activar(btn);
 obtener(fechaOffset(1));
 }
 
 function verFinalizados(btn){
 modoActual="finished";
-activar(btn);
 document.getElementById("tituloBanner").innerHTML="✅ Partidos Finalizados";
+if(btn) activar(btn);
 obtener(fechaOffset(-1));
 }
 
 function buscarFecha(){
 let fecha=document.getElementById("fechaInput").value;
 if(!fecha)return;
-
 document.getElementById("tituloBanner").innerHTML="📆 Partidos del "+fecha;
 obtener(fecha);
 }
