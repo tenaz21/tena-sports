@@ -38,7 +38,6 @@ background:#0d1a30;
 padding:25px;
 margin-bottom:20px;
 border-radius:20px;
-box-shadow:0 0 20px rgba(0,0,0,.5);
 }
 </style>
 </head>
@@ -51,9 +50,7 @@ box-shadow:0 0 20px rgba(0,0,0,.5);
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
-<div id="matches">
-Cargando partidos...
-</div>
+<div id="matches"></div>
 
 <script>
 
@@ -73,79 +70,5 @@ document.getElementById("matches").innerHTML = `
 
 </script>
 
-</body>
-</html>
-<header>⚽ TENA SPORTS</header>
-
-<div class="banner">
-🔥 HOY: Resultados deportivos EN VIVO
-</div>
-
-<div id="matches">
-Cargando partidos...
-</div>
-
-<script>
-const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
-
-fetch("https://livescore67.p.rapidapi.com/matches/v2/list-by-date?Category=soccer&Date=2026-04-12", {
-method: "GET",
-headers: {
-"x-rapidapi-key": apiKey,
-"x-rapidapi-host": "livescore67.p.rapidapi.com"
-}
-})
-.then(response => response.json())
-.then(data => {
-
-console.log(data);
-
-let html = "";
-
-if(data.Stages){
-
-data.Stages.forEach(stage => {
-
-if(stage.Events){
-
-stage.Events.forEach(partido => {
-
-html += `
-<div class="card">
-
-<div class="live">⚽ PRÓXIMO PARTIDO</div>
-
-<div class="match">
-<span>${partido.T1[0].Nm}</span>
-<span>${partido.T2[0].Nm}</span>
-</div>
-
-<div class="score">
-VS
-</div>
-
-</div>
-`;
-
-});
-
-}
-
-});
-
-}else{
-
-html = "No se encontraron partidos";
-
-}
-
-document.getElementById("matches").innerHTML = html;
-
-})
-.catch(error => {
-console.log(error);
-document.getElementById("matches").innerHTML = "Error cargando partidos";
-});
-</script>
 </body>
 </html>
