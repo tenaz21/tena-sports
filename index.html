@@ -96,7 +96,7 @@ margin-top:15px;
 
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-fetch("https://livescore67.p.rapidapi.com/matches/v2/list-live?Category=soccer",{
+fetch("https://livescore67.p.rapidapi.com/matches/v2/list-by-date?Category=soccer&Date=2026-04-12",{
 method:"GET",
 headers:{
 "x-rapidapi-key":apiKey,
@@ -110,7 +110,7 @@ console.log(data);
 
 let html="";
 
-if(data.Stages && data.Stages.length>0){
+if(data.Stages){
 
 data.Stages.forEach(stage=>{
 
@@ -118,13 +118,14 @@ stage.Events.forEach(partido=>{
 
 html+=`
 <div class="card">
-<div class="live">EN VIVO</div>
+
+<div class="live">PARTIDO</div>
 
 <div class="team">${partido.T1[0].Nm}</div>
 
 <div class="team">${partido.T2[0].Nm}</div>
 
-<div class="score">⚽ ${partido.Tr1} - ${partido.Tr2}</div>
+<div class="score">Programado Hoy</div>
 
 </div>
 `;
@@ -135,7 +136,7 @@ html+=`
 
 }else{
 
-html="<h2>No hay partidos en vivo</h2>";
+html="<h2>No hay partidos disponibles</h2>";
 
 }
 
@@ -147,7 +148,7 @@ document.getElementById("matches").innerHTML=html;
 console.log(error);
 
 document.getElementById("matches").innerHTML=
-"<h2>Error conectando API</h2>";
+"<h2>Error de conexión</h2>";
 
 });
 
