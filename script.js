@@ -1,217 +1,137 @@
-const API_KEY="3cc8bf02536b52d0ecc667afdfd2859c";
+const API_KEY = "3cc8bf02536b52d0ecc667afdfd2859c";
+const BASE_URL = "https://v3.football.api-sports.io";
 
-async function api(url){
+const contenido = document.getElementById("contenido");
 
-const res=await fetch(url,{
-headers:{
-"x-apisports-key":API_KEY
+const headers = {
+    "x-apisports-key": API_KEY
+};
+
+window.onload = () => cargarEnVivo();
+
+async function getData(url){
+    const res = await fetch(url,{headers});
+    const data = await res.json();
+    return data.response;
 }
-});
 
-return await res.json();
+function crearPartidoHTML(partido, enVivo=false){
+    return `
+    <div class="card">
+        <div class="team">
+            <img src="${partido.teams.home.logo}">
+            ${partido.teams.home.name}
+        </div>
 
-}
+        <div class="team">
+            <img src="${partido.teams.away.logo}">
+            ${partido.teams.away.name}
+        </div>
 
-function render(html){
-document.getElementById("contenido").innerHTML=html;
+        <div class="score">
+            ${partido.goals.home ?? "-"} - ${partido.goals.away ?? "-"}
+        </div>
+
+        <p>🏆 ${partido.league.name}</p>
+
+        ${
+            enVivo
+            ? `<p>⏱ ${partido.fixture.status.elapsed}'</p>`
+            : `<p>📅 ${new Date(partido.fixture.date).toLocaleString()}</p>`
+        }
+    </div>
+    `;
 }
 
 async function cargarEnVivo(){
+    contenido.innerHTML="";
 
-render("Cargando...");
+    let partidos = await getData(
+        `${BASE_URL}/fixtures?live=all`
+    );
 
-let data=await api("https://v3.football.api-sports.io/fixtures?live=all");
-
-let html="";
-
-data.response.forEach(p=>{
-
-html+=`
-<div class="card" onclick="detallePartido(${p.fixture.id})">
-
-<div class="team">
-<img src="${p.teams.home.logo}">
-${p.teams.home.name}
-</div>
-
-<div class="team">
-<img src="${p.teams.away.logo}">
-${p.teams.away.name}
-</div>
-
-<div class="score">
-${p.goals.home}-${p.goals.away}
-</div>
-
-⏱ ${p.fixture.status.elapsed}'
-<br>
-🏆 ${p.league.name}
-
-</div>
-`;
-
-});
-
-render(html);
-
+    partidos.forEach(p=>{
+        contenido.innerHTML += crearPartidoHTML(p,true);
+    });
 }
 
 async function cargarProximos(){
+    contenido.innerHTML="";
 
-render("Cargando...");
+    let hoy = new Date();
+    let mañana = new Date();
+    mañana.setDate(hoy.getDate()+1);
 
-let data=await api("https://v3.football.api-sports.io/fixtures?next=20");
+    let fecha = mañana.toISOString().split("T")[0];
 
-let html="";
+    let partidos = await getData(
+        `${BASE_URL}/fixtures?date=${fecha}`
+    );
 
-data.response.forEach(p=>{
-
-html+=`
-<div class="card">
-
-${p.teams.home.name} vs ${p.teams.away.name}
-<br><br>
-🏆 ${p.league.name}
-<br>
-📅 ${new Date(p.fixture.date).toLocaleString("es-PE",{timeZone:"America/Lima"})}
-
-</div>
-`;
-
-});
-
-render(html);
-
+    partidos.forEach(p=>{
+        contenido.innerHTML += crearPartidoHTML(p);
+    });
 }
 
 async function cargarFinalizados(){
+    contenido.innerHTML="";
 
-render("Cargando...");
+    let ayer = new Date();
+    ayer.setDate(ayer.getDate()-1);
 
-let data=await api("https://v3.football.api-sports.io/fixtures?last=20");
+    let fecha = ayer.toISOString().split("T")[0];
 
-let html="";
+    let partidos = await getData(
+        `${BASE_URL}/fixtures?date=${fecha}&status=FT`
+    );
 
-data.response.forEach(p=>{
-
-html+=`
-<div class="card">
-
-${p.teams.home.name} ${p.goals.home} - ${p.goals.away} ${p.teams.away.name}
-<br><br>
-🏆 ${p.league.name}
-
-</div>
-`;
-
-});
-
-render(html);
-
+    partidos.forEach(p=>{
+        contenido.innerHTML += crearPartidoHTML(p);
+    });
 }
 
 async function cargarPaises(){
+    contenido.innerHTML="";
 
-render("Cargando países...");
+    let paises = await getData(
+        `${BASE_URL}/countries`
+    );
 
-let data=await api("https://v3.football.api-sports.io/countries");
-
-let html="";
-
-data.response.forEach(p=>{
-
-html+=`
-<div class="card" onclick="cargarLigas('${p.name}')">
-🌍 ${p.name}
-</div>
-`;
-
-});
-
-render(html);
-
+    paises.forEach(pais=>{
+        contenido.innerHTML += `
+        <div class="card" onclick="verLigas('${pais.name}')">
+            🌍 ${pais.name}
+        </div>
+        `;
+    });
 }
 
-async function cargarLigas(pais){
+async function verLigas(pais){
+    contenido.innerHTML="";
 
-render("Cargando ligas...");
+    let ligas = await getData(
+        `${BASE_URL}/leagues?country=${pais}`
+    );
 
-let data=await api("https://v3.football.api-sports.io/leagues?country="+pais);
-
-let html="";
-
-data.response.forEach(l=>{
-
-html+=`
-<div class="card" onclick="cargarPartidosLiga(${l.league.id})">
-🏆 ${l.league.name}
-</div>
-`;
-
-});
-
-render(html);
-
+    ligas.forEach(liga=>{
+        contenido.innerHTML += `
+        <div class="card" onclick="verPartidosLiga(${liga.league.id})">
+            🏆 ${liga.league.name}
+        </div>
+        `;
+    });
 }
 
-async function cargarPartidosLiga(id){
+async function verPartidosLiga(idLiga){
+    contenido.innerHTML="";
 
-render("Cargando partidos...");
+    let hoy = new Date().toISOString().split("T")[0];
 
-let data=await api(
-"https://v3.football.api-sports.io/fixtures?league="+id+"&season=2026"
-);
+    let partidos = await getData(
+        `${BASE_URL}/fixtures?league=${idLiga}&date=${hoy}`
+    );
 
-let html="";
-
-data.response.forEach(p=>{
-
-html+=`
-<div class="card">
-
-${p.teams.home.name} vs ${p.teams.away.name}
-<br>
-📅 ${new Date(p.fixture.date).toLocaleString("es-PE",{timeZone:"America/Lima"})}
-
-</div>
-`;
-
-});
-
-render(html);
-
+    partidos.forEach(p=>{
+        contenido.innerHTML += crearPartidoHTML(p);
+    });
 }
-
-async function detallePartido(id){
-
-let data=await api(
-"https://v3.football.api-sports.io/fixtures?id="+id
-);
-
-let p=data.response[0];
-
-render(`
-
-<div class="card">
-
-<h2>${p.teams.home.name}</h2>
-
-<h2>${p.teams.away.name}</h2>
-
-<div class="score">
-${p.goals.home}-${p.goals.away}
-</div>
-
-<p>🏟 ${p.fixture.venue.name}</p>
-
-<p>👨‍⚖️ ${p.fixture.referee}</p>
-
-<p>🏆 ${p.league.name}</p>
-
-</div>
-
-`);
-
-}
-
-cargarEnVivo();
