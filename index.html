@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>TENA SPORTS</title>
 
 <style>
@@ -11,7 +12,6 @@ margin:0;
 background:#021427;
 font-family:Arial;
 color:white;
-padding-bottom:30px;
 }
 .header{
 background:linear-gradient(90deg,#0055ff,#39a9ff);
@@ -22,7 +22,7 @@ text-align:center;
 }
 .section{
 padding:20px;
-font-size:26px;
+font-size:28px;
 font-weight:bold;
 }
 .card{
@@ -30,29 +30,11 @@ background:#2e4f9e;
 margin:15px;
 padding:20px;
 border-radius:20px;
-box-shadow:0 5px 15px rgba(0,0,0,.35);
-}
-.live{
-border-left:8px solid red;
-}
-.finished{
-border-left:8px solid lime;
-}
-.next{
-border-left:8px solid orange;
-}
-.team{
-font-size:24px;
-font-weight:bold;
-margin:5px 0;
 }
 .score{
 font-size:35px;
 font-weight:bold;
-margin:15px 0;
-}
-.time{
-opacity:.85;
+margin:10px 0;
 }
 </style>
 </head>
@@ -60,9 +42,7 @@ opacity:.85;
 
 <div class="header">⚽ TENA SPORTS</div>
 
-<div id="app">
-<div class="section">Cargando partidos...</div>
-</div>
+<div id="app"></div>
 
 <script>
 
@@ -70,24 +50,28 @@ async function cargarTodo(){
 
 let html="";
 
+/* EN VIVO */
+html += "<div class='section'>🔴 EN VIVO</div>";
+
 try{
 
-/* EN VIVO */
-const liveRes=await fetch("https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Soccer");
-const liveData=await liveRes.json();
+const liveRes = await fetch(
+"https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Soccer"
+);
 
-html+=`<div class="section">🔴 EN VIVO</div>`;
+const liveData = await liveRes.json();
 
-if(liveData.events && liveData.events.length){
+if(liveData.events){
 
 liveData.events.forEach(p=>{
 
-html+=`
-<div class="card live">
-<div class="team">${p.strHomeTeam}</div>
-<div class="team">${p.strAwayTeam}</div>
-<div class="score">${p.intHomeScore ?? "-"} - ${p.intAwayScore ?? "-"}</div>
-<div class="time">⏱ En juego</div>
+html += `
+<div class="card">
+<h2>${p.strHomeTeam}</h2>
+<h2>${p.strAwayTeam}</h2>
+<div class="score">
+${p.intHomeScore ?? 0} - ${p.intAwayScore ?? 0}
+</div>
 </div>
 `;
 
@@ -95,72 +79,77 @@ html+=`
 
 }else{
 
-html+=`<div class="card live">No hay partidos en vivo.</div>`;
+html += "<div class='card'>No hay partidos en vivo.</div>";
+
+}
+
+}catch{
+
+html += "<div class='card'>No disponible.</div>";
 
 }
 
 
-/* PRÓXIMOS */
-const nextRes=await fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328");
-const nextData=await nextRes.json();
+/* PROXIMOS */
+html += "<div class='section'>📅 PRÓXIMOS</div>";
 
-html+=`<div class="section">📅 PRÓXIMOS</div>`;
+try{
 
-if(nextData.events){
+const nextRes = await fetch(
+"https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328"
+);
+
+const nextData = await nextRes.json();
 
 nextData.events.slice(0,5).forEach(p=>{
 
-html+=`
-<div class="card next">
-<div class="team">${p.strHomeTeam}</div>
-<div class="team">${p.strAwayTeam}</div>
+html += `
+<div class="card">
+<h2>${p.strHomeTeam}</h2>
+<h2>${p.strAwayTeam}</h2>
 <div class="score">VS</div>
-<div class="time">${p.dateEvent} - ${p.strTime}</div>
+<p>${p.dateEvent}</p>
 </div>
 `;
 
 });
 
-}
+}catch{}
 
 
 /* FINALIZADOS */
-const finRes=await fetch("https://www.thesportsdb.com/api/v1/json/3/eventslastleague.php?id=4328");
-const finData=await finRes.json();
+html += "<div class='section'>✅ FINALIZADOS</div>";
 
-html+=`<div class="section">✅ FINALIZADOS</div>`;
+try{
 
-if(finData.events){
+const finRes = await fetch(
+"https://www.thesportsdb.com/api/v1/json/3/eventslastleague.php?id=4328"
+);
+
+const finData = await finRes.json();
 
 finData.events.slice(0,5).forEach(p=>{
 
-html+=`
-<div class="card finished">
-<div class="team">${p.strHomeTeam}</div>
-<div class="team">${p.strAwayTeam}</div>
-<div class="score">${p.intHomeScore} - ${p.intAwayScore}</div>
-<div class="time">${p.dateEvent}</div>
+html += `
+<div class="card">
+<h2>${p.strHomeTeam}</h2>
+<h2>${p.strAwayTeam}</h2>
+<div class="score">
+${p.intHomeScore} - ${p.intAwayScore}
+</div>
 </div>
 `;
 
 });
 
-}
+}catch{}
 
 document.getElementById("app").innerHTML=html;
-
-}catch(e){
-
-document.getElementById("app").innerHTML=
-"<div class='section'>Error cargando datos</div>";
-
-}
 
 }
 
 cargarTodo();
 
-/* refresco automático */
 setInterval(cargarTodo,30000);
 
 </script>
