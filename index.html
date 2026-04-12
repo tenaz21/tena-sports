@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>TENA SPORTS</title>
 
 <style>
@@ -12,6 +11,7 @@ margin:0;
 background:#021427;
 font-family:Arial;
 color:white;
+padding-bottom:90px;
 }
 
 .header{
@@ -30,7 +30,7 @@ font-weight:bold;
 }
 
 #matches{
-padding:20px;
+padding:15px;
 }
 
 .card{
@@ -38,84 +38,134 @@ background:#26478d;
 padding:20px;
 margin-bottom:20px;
 border-radius:20px;
+cursor:pointer;
+}
+
+.team{
+display:flex;
+align-items:center;
+gap:10px;
+font-size:22px;
+font-weight:bold;
+margin:10px 0;
+}
+
+.team img{
+width:35px;
 }
 
 .score{
-font-size:40px;
+font-size:42px;
 font-weight:bold;
-margin:15px 0;
 color:#00ff88;
+margin:15px 0;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#00172d;
+display:flex;
+justify-content:space-around;
+padding:15px;
+font-weight:bold;
+}
+
+.bottom-nav div{
+cursor:pointer;
 }
 </style>
 </head>
 <body>
 
 <div class="header">⚽ TENA SPORTS</div>
-<div class="banner">🔥 HOY: Resultados deportivos EN VIVO</div>
+<div class="banner">🔥 Resultados deportivos EN VIVO</div>
 
-<div id="matches">Cargando partidos...</div>
+<div id="matches">Cargando...</div>
+
+<div class="bottom-nav">
+<div onclick="cargarEnVivo()">🔴<br>En Vivo</div>
+<div onclick="cargarProximos()">📅<br>Próximos</div>
+<div onclick="cargarFinalizados()">✅<br>Finalizados</div>
+</div>
 
 <script>
 
 const API_KEY="3cc8bf02536b52d0ecc667afdfd2859c";
 
-async function cargarPartidos(){
+async function obtener(endpoint){
 
-try{
-
-const res = await fetch("https://v3.football.api-sports.io/fixtures?live=all",{
-method:"GET",
+const res=await fetch(endpoint,{
 headers:{
 "x-apisports-key":API_KEY
 }
 });
 
-const data = await res.json();
+return await res.json();
+
+}
+
+function renderizar(data,tipo){
 
 let html="";
-
-if(data.response.length===0){
-html="<h2>No hay partidos en vivo ahora mismo</h2>";
-}else{
 
 data.response.forEach(partido=>{
 
 html+=`
 <div class="card">
 
-<h2>${partido.teams.home.name}</h2>
-
-<h2>${partido.teams.away.name}</h2>
-
-<div class="score">
-${partido.goals.home} - ${partido.goals.away}
+<div class="team">
+<img src="${partido.teams.home.logo}">
+${partido.teams.home.name}
 </div>
 
-<p>⏱ Minuto: ${partido.fixture.status.elapsed || 0}'</p>
+<div class="team">
+<img src="${partido.teams.away.logo}">
+${partido.teams.away.name}
+</div>
+
+<div class="score">
+${partido.goals.home ?? "-"} - ${partido.goals.away ?? "-"}
+</div>
 
 <p>🏆 ${partido.league.name}</p>
 
+<p>
+${tipo==="vivo" ? "⏱ "+partido.fixture.status.elapsed+"'" :
+"📅 "+partido.fixture.date.slice(0,16)}
+</p>
+
 </div>
 `;
-
 });
-
-}
 
 document.getElementById("matches").innerHTML=html;
 
-}catch(error){
-
-document.getElementById("matches").innerHTML=
-"<h2>Error cargando partidos</h2>";
-
 }
 
+async function cargarEnVivo(){
+document.getElementById("matches").innerHTML="Cargando en vivo...";
+const data=await obtener("https://v3.football.api-sports.io/fixtures?live=all");
+renderizar(data,"vivo");
 }
 
-cargarPartidos();
+async function cargarProximos(){
+document.getElementById("matches").innerHTML="Cargando próximos...";
+const data=await obtener("https://v3.football.api-sports.io/fixtures?next=20");
+renderizar(data,"proximo");
+}
 
-setInterval(cargarPartidos,60000);
+async function cargarFinalizados(){
+document.getElementById("matches").innerHTML="Cargando finalizados...";
+const data=await obtener("https://v3.football.api-sports.io/fixtures?last=20");
+renderizar(data,"final");
+}
+
+cargarEnVivo();
+
+setInterval(cargarEnVivo,300000);
 
 </script>
 
