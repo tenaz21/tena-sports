@@ -111,9 +111,15 @@ function renderizar(data,tipo){
 
 let html="";
 
+if(!data.response || data.response.length===0){
+document.getElementById("matches").innerHTML="<h2>No hay partidos disponibles</h2>";
+return;
+}
+
 data.response.forEach(partido=>{
 
 html+=`
+
 <div class="card">
 
 <div class="team">
@@ -133,12 +139,15 @@ ${partido.goals.home ?? "-"} - ${partido.goals.away ?? "-"}
 <p>🏆 ${partido.league.name}</p>
 
 <p>
-${tipo==="vivo" ? "⏱ "+partido.fixture.status.elapsed+"'" :
-"📅 "+partido.fixture.date.slice(0,16)}
+${tipo==="vivo"
+? "⏱ "+partido.fixture.status.elapsed+"'"
+: "📅 "+new Date(partido.fixture.date).toLocaleString()}
 </p>
 
 </div>
+
 `;
+
 });
 
 document.getElementById("matches").innerHTML=html;
@@ -146,21 +155,43 @@ document.getElementById("matches").innerHTML=html;
 }
 
 async function cargarEnVivo(){
+
 document.getElementById("matches").innerHTML="Cargando en vivo...";
-const data=await obtener("https://v3.football.api-sports.io/fixtures?live=all");
+
+const data=await obtener(
+"https://v3.football.api-sports.io/fixtures?live=all"
+);
+
 renderizar(data,"vivo");
+
 }
 
 async function cargarProximos(){
+
 document.getElementById("matches").innerHTML="Cargando próximos...";
-const data=await obtener("https://v3.football.api-sports.io/fixtures?next=20");
+
+const hoy=new Date().toISOString().split("T")[0];
+
+const data=await obtener(
+`https://v3.football.api-sports.io/fixtures?date=${hoy}&status=NS`
+);
+
 renderizar(data,"proximo");
+
 }
 
 async function cargarFinalizados(){
+
 document.getElementById("matches").innerHTML="Cargando finalizados...";
-const data=await obtener("https://v3.football.api-sports.io/fixtures?last=20");
+
+const hoy=new Date().toISOString().split("T")[0];
+
+const data=await obtener(
+`https://v3.football.api-sports.io/fixtures?date=${hoy}&status=FT`
+);
+
 renderizar(data,"final");
+
 }
 
 cargarEnVivo();
