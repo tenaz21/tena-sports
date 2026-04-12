@@ -52,44 +52,32 @@ Cargando partidos...
 </div>
 
 <script>
-
-const API_TOKEN="33383a1b11c24b09b892548b771985b4";
+<script>
 
 async function cargarPartidos(){
 
 try{
 
-const proxyURL =
-"https://api.allorigins.win/raw?url=" +
-encodeURIComponent("https://api.football-data.org/v4/matches");
+const res = await fetch(
+"https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=133602"
+);
 
-const res = await fetch(proxyURL,{
-headers:{
-"X-Auth-Token":API_TOKEN
-}
-});
-
-const texto = await res.text();
-
-console.log(texto);
-
-const data = JSON.parse(texto);
+const data = await res.json();
 
 let html="";
 
-data.matches.slice(0,10).forEach(p=>{
+data.results.forEach(p=>{
 
-html+=`
-<div style="
-background:#26478d;
-padding:20px;
-margin:15px;
-border-radius:15px;
-">
-<h2>${p.homeTeam.name}</h2>
-<h2>${p.awayTeam.name}</h2>
-<h1>${p.score.fullTime.home ?? "-"} - ${p.score.fullTime.away ?? "-"}</h1>
-<p>${p.status}</p>
+html += `
+<div class="card">
+<h2>${p.strHomeTeam}</h2>
+<h2>${p.strAwayTeam}</h2>
+
+<div class="score">
+${p.intHomeScore ?? "-"} - ${p.intAwayScore ?? "-"}
+</div>
+
+<p>${p.dateEvent}</p>
 </div>
 `;
 
@@ -97,10 +85,10 @@ border-radius:15px;
 
 document.getElementById("matches").innerHTML=html;
 
-}catch(e){
+}catch(error){
 
 document.getElementById("matches").innerHTML=
-"<h2 style='color:red'>"+e+"</h2>";
+"<h2 style='color:red'>"+error+"</h2>";
 
 }
 
