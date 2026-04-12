@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>TENA SPORTS</title>
 
 <style>
@@ -81,23 +80,25 @@ Cargando partidos...
 <script>
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-fetch("https://livescore6.p.rapidapi.com/matches/v2/list-live?Category=soccer",{
-method:"GET",
-headers:{
-"x-rapidapi-key":apiKey,
-"x-rapidapi-host":"livescore6.p.rapidapi.com"
+fetch("https://livescore6.p.rapidapi.com/matches/v2/list-live?Category=soccer", {
+method: "GET",
+headers: {
+"x-rapidapi-key": apiKey,
+"x-rapidapi-host": "livescore6.p.rapidapi.com"
 }
 })
-.then(res=>res.json())
-.then(data=>{
+.then(response => response.json())
+.then(data => {
 
-let partidos=data.Stages[0].Events;
+console.log(data);
 
-let html="";
+let partidos = data.Stages[0].Events;
 
-partidos.slice(0,5).forEach(partido=>{
+let html = "";
 
-html+=`
+partidos.slice(0,5).forEach(partido => {
+
+html += `
 <div class="card">
 
 <div class="live">🔴 EN VIVO</div>
@@ -113,14 +114,15 @@ ${partido.Tr1} - ${partido.Tr2}
 
 </div>
 `;
+
 });
 
-document.getElementById("matches").innerHTML=html;
+document.getElementById("matches").innerHTML = html;
 
 })
-.catch(error=>{
-document.getElementById("matches").innerHTML="Error cargando partidos";
+.catch(error => {
 console.log(error);
+document.getElementById("matches").innerHTML = "Error cargando partidos";
 });
 </script>
 
