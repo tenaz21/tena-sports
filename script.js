@@ -1,12 +1,13 @@
 const API_KEY = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-const API_URL = "https://free-football-api-data.p.rapidapi.com/football-live-all-matches";
+const API_URL = "https://free-football-api-data.p.rapidapi.com/football-current-live";
 
 const opciones = {
     method: "GET",
     headers: {
         "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": "free-football-api-data.p.rapidapi.com"
+        "x-rapidapi-host": "free-football-api-data.p.rapidapi.com",
+        "Content-Type": "application/json"
     }
 };
 
@@ -17,7 +18,7 @@ async function obtenerDatos() {
 
         console.log(data);
 
-        return data.response?.live || [];
+        return data.response.live || [];
     } catch (error) {
         console.error(error);
         return [];
@@ -29,7 +30,7 @@ async function cargarEnVivo() {
 
     const contenido = document.getElementById("contenido");
 
-    if (partidos.length === 0) {
+    if (!partidos.length) {
         contenido.innerHTML = "<h2>No hay partidos en vivo.</h2>";
         return;
     }
@@ -51,29 +52,23 @@ async function cargarEnVivo() {
 
 async function cargarProximos() {
     document.getElementById("contenido").innerHTML =
-        "<h2>No hay próximos partidos disponibles.</h2>";
+        "<h2>Próximamente disponible.</h2>";
 }
 
 async function cargarFinalizados() {
     document.getElementById("contenido").innerHTML =
-        "<h2>No hay partidos finalizados disponibles.</h2>";
+        "<h2>Finalizados próximamente disponible.</h2>";
 }
 
 async function cargarPaises() {
     const partidos = await obtenerDatos();
 
-    if (partidos.length === 0) {
-        document.getElementById("contenido").innerHTML =
-            "<h2>No hay países disponibles.</h2>";
-        return;
-    }
-
-    let ligas = [...new Set(partidos.map(p => "Liga ID: " + p.leagueId))];
+    let ligas = [...new Set(partidos.map(p => p.leagueId))];
 
     document.getElementById("contenido").innerHTML =
         ligas.map(liga => `
             <div class="card">
-                🏆 ${liga}
+                🏆 Liga ${liga}
             </div>
         `).join("");
 }
