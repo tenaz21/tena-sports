@@ -40,33 +40,41 @@ margin-bottom:20px;
 border-radius:20px;
 box-shadow:0 0 20px rgba(0,0,0,.5);
 }
-
-.live{
-color:#00ff88;
-font-weight:bold;
-font-size:22px;
-margin-bottom:15px;
-}
-
-.match{
-display:flex;
-justify-content:space-between;
-font-size:30px;
-font-weight:bold;
-margin-bottom:20px;
-}
-
-.score{
-text-align:center;
-font-size:45px;
-color:#2f7cff;
-font-weight:bold;
-}
 </style>
 </head>
 
 <body>
 
+<header>⚽ TENA SPORTS</header>
+
+<div class="banner">
+🔥 HOY: Resultados deportivos EN VIVO
+</div>
+
+<div id="matches">
+Cargando partidos...
+</div>
+
+<script>
+
+document.getElementById("matches").innerHTML = `
+
+<div class="card">
+<h2>Real Madrid vs Barcelona</h2>
+<p>⚽ Partido de prueba</p>
+</div>
+
+<div class="card">
+<h2>Manchester City vs Arsenal</h2>
+<p>⚽ Partido de prueba</p>
+</div>
+
+`;
+
+</script>
+
+</body>
+</html>
 <header>⚽ TENA SPORTS</header>
 
 <div class="banner">
