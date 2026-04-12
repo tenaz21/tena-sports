@@ -154,37 +154,34 @@ document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));
 btn.classList.add("active");
 }
 
-function fechaHoy(){
-return new Date().toISOString().split("T")[0];
-}
-
-function fechaMañana(){
+function formatoFecha(offset=0){
 let d=new Date();
-d.setDate(d.getDate()+1);
+d.setDate(d.getDate()+offset);
 return d.toISOString().split("T")[0];
 }
 
-function fechaAyer(){
-let d=new Date();
-d.setDate(d.getDate()-1);
-return d.toISOString().split("T")[0];
-}
+async function obtenerPartidos(fecha=null,enVivo=false){
 
-async function obtener(url){
+let url="";
+
+if(enVivo){
+url="https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football";
+}else{
+url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`;
+}
 
 const res=await fetch(url,{
 method:"GET",
 headers:{
 "x-rapidapi-key":API_KEY,
-"x-rapidapi-host":"livescore6.p.rapidapi.com"
+"x-rapidapi-host":"livescore67.p.rapidapi.com"
 }
 });
 
 const data=await res.json();
 
-console.log(data);
+renderizar(data);
 
-return data;
 }
 
 async function verEnVivo(btn){
@@ -193,11 +190,7 @@ activar(btn);
 document.getElementById("tituloBanner").innerHTML=
 "🔥 HOY: Resultados deportivos EN VIVO";
 
-let data=await obtener(
-"https://livescore6.p.rapidapi.com/api/livescore/v1/match/live"
-);
-
-renderizar(data.data || []);
+obtenerPartidos(null,true);
 }
 
 async function verProximos(btn){
@@ -206,11 +199,7 @@ activar(btn);
 document.getElementById("tituloBanner").innerHTML=
 "📅 Próximos partidos";
 
-let data=await obtener(
-`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fechaMañana()}`
-);
-
-renderizar(data.data || []);
+obtenerPartidos(formatoFecha(1));
 }
 
 async function verFinalizados(btn){
@@ -219,11 +208,7 @@ activar(btn);
 document.getElementById("tituloBanner").innerHTML=
 "✅ Partidos Finalizados";
 
-let data=await obtener(
-`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fechaAyer()}`
-);
-
-renderizar(data.data || []);
+obtenerPartidos(formatoFecha(-1));
 }
 
 async function buscarFecha(){
@@ -235,73 +220,55 @@ if(!fecha)return;
 document.getElementById("tituloBanner").innerHTML=
 "📆 Partidos del "+fecha;
 
-let data=await obtener(
-`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fecha}`
-);
-
-renderizar(data.data || []);
+obtenerPartidos(fecha);
 }
 
 function toggleDetalles(id){
 let box=document.getElementById(id);
 
 box.style.display=
-box.style.display==="block"
-? "none"
-: "block";
+box.style.display==="block"?"none":"block";
 }
 
-function renderizar(partidos){
+function renderizar(data){
 
 let html="";
 
-if(partidos.length===0){
-html="<h2 style='padding:20px'>No hay partidos aquí</h2>";
-document.getElementById("matches").innerHTML=html;
+if(!data || data.length===0){
+document.getElementById("matches").innerHTML="<h2 style='padding:20px'>No hay partidos disponibles</h2>";
 return;
 }
 
-let agrupados={};
-
-partidos.forEach(p=>{
-
-let liga=p.league_name || "Sin liga";
-
-if(!agrupados[liga]) agrupados[liga]=[];
-
-agrupados[liga].push(p);
-
-});
-
 let contador=0;
 
-for(let liga in agrupados){
+data.forEach(liga=>{
 
-html+=`<div class="liga">🏆 ${liga}</div>`;
+if(!liga.matches || liga.matches.length===0)return;
 
-agrupados[liga].forEach(p=>{
+html+=`<div class="liga">🏆 ${liga.stage.stage_name}</div>`;
+
+liga.matches.forEach(partido=>{
 
 contador++;
 
 html+=`
-
 <div class="card">
 
 <div class="estado">
-${p.status || "PARTIDO"}
+${partido.status || "PARTIDO"}
 </div>
 
 <div style="font-size:20px;">
-${p.home_name}<br><br>
-${p.away_name}
+${partido.team_home[0].team_name}<br><br>
+${partido.team_away[0].team_name}
 </div>
 
 <div class="score">
-${p.scores?.home ?? "-"} - ${p.scores?.away ?? "-"}
+${partido.scores?.home ?? "-"} - ${partido.scores?.away ?? "-"}
 </div>
 
 <div>
-⏱ ${p.match_status?.live_time || p.match_date || ""}
+⏱ ${partido.match_status?.live_time || partido.match_date || ""}
 </div>
 
 <button onclick="toggleDetalles('det${contador}')">
@@ -309,19 +276,17 @@ Ver detalles
 </button>
 
 <div class="detalles" id="det${contador}">
-📅 Fecha: ${p.match_date || "No disponible"}<br><br>
-🏆 Liga: ${p.league_name || "No disponible"}<br><br>
-🌍 País: ${p.country_name || "No disponible"}<br><br>
-📌 Estado: ${p.status || "No disponible"}
+📅 Fecha: ${partido.match_date || "No disponible"}<br><br>
+🏆 Liga: ${liga.stage.stage_name}<br><br>
+🌍 País: ${liga.country.country_name}<br>
 </div>
 
 </div>
-
 `;
 
 });
 
-}
+});
 
 document.getElementById("matches").innerHTML=html;
 }
