@@ -13,144 +13,109 @@ background:#021427;
 font-family:Arial;
 color:white;
 }
+
 .header{
-background:linear-gradient(90deg,#0055ff,#39a9ff);
+background:linear-gradient(90deg,#005eff,#42b3ff);
 padding:25px;
 font-size:32px;
 font-weight:bold;
 text-align:center;
 }
-.section{
+
+.banner{
+background:red;
 padding:20px;
-font-size:28px;
+font-size:24px;
 font-weight:bold;
 }
-.card{
-background:#2e4f9e;
-margin:15px;
+
+#matches{
 padding:20px;
+}
+
+.card{
+background:#26478d;
+padding:20px;
+margin-bottom:20px;
 border-radius:20px;
 }
+
 .score{
-font-size:35px;
+font-size:40px;
 font-weight:bold;
-margin:10px 0;
+margin:15px 0;
+color:#00ff88;
 }
 </style>
 </head>
 <body>
 
 <div class="header">⚽ TENA SPORTS</div>
+<div class="banner">🔥 HOY: Resultados deportivos EN VIVO</div>
 
-<div id="app"></div>
+<div id="matches">Cargando partidos...</div>
 
 <script>
 
-async function cargarTodo(){
+const API_KEY="3cc8bf02536b52d0ecc667afdfd2859c";
+
+async function cargarPartidos(){
+
+try{
+
+const res = await fetch("https://v3.football.api-sports.io/fixtures?live=all",{
+method:"GET",
+headers:{
+"x-apisports-key":API_KEY
+}
+});
+
+const data = await res.json();
 
 let html="";
 
-/* EN VIVO */
-html += "<div class='section'>🔴 EN VIVO</div>";
-
-try{
-
-const liveRes = await fetch(
-"https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Soccer"
-);
-
-const liveData = await liveRes.json();
-
-if(liveData.events){
-
-liveData.events.forEach(p=>{
-
-html += `
-<div class="card">
-<h2>${p.strHomeTeam}</h2>
-<h2>${p.strAwayTeam}</h2>
-<div class="score">
-${p.intHomeScore ?? 0} - ${p.intAwayScore ?? 0}
-</div>
-</div>
-`;
-
-});
-
+if(data.response.length===0){
+html="<h2>No hay partidos en vivo ahora mismo</h2>";
 }else{
 
-html += "<div class='card'>No hay partidos en vivo.</div>";
+data.response.forEach(partido=>{
 
-}
-
-}catch{
-
-html += "<div class='card'>No disponible.</div>";
-
-}
-
-
-/* PROXIMOS */
-html += "<div class='section'>📅 PRÓXIMOS</div>";
-
-try{
-
-const nextRes = await fetch(
-"https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328"
-);
-
-const nextData = await nextRes.json();
-
-nextData.events.slice(0,5).forEach(p=>{
-
-html += `
+html+=`
 <div class="card">
-<h2>${p.strHomeTeam}</h2>
-<h2>${p.strAwayTeam}</h2>
-<div class="score">VS</div>
-<p>${p.dateEvent}</p>
-</div>
-`;
 
-});
+<h2>${partido.teams.home.name}</h2>
 
-}catch{}
+<h2>${partido.teams.away.name}</h2>
 
-
-/* FINALIZADOS */
-html += "<div class='section'>✅ FINALIZADOS</div>";
-
-try{
-
-const finRes = await fetch(
-"https://www.thesportsdb.com/api/v1/json/3/eventslastleague.php?id=4328"
-);
-
-const finData = await finRes.json();
-
-finData.events.slice(0,5).forEach(p=>{
-
-html += `
-<div class="card">
-<h2>${p.strHomeTeam}</h2>
-<h2>${p.strAwayTeam}</h2>
 <div class="score">
-${p.intHomeScore} - ${p.intAwayScore}
+${partido.goals.home} - ${partido.goals.away}
 </div>
+
+<p>⏱ Minuto: ${partido.fixture.status.elapsed || 0}'</p>
+
+<p>🏆 ${partido.league.name}</p>
+
 </div>
 `;
 
 });
 
-}catch{}
+}
 
-document.getElementById("app").innerHTML=html;
+document.getElementById("matches").innerHTML=html;
+
+}catch(error){
+
+document.getElementById("matches").innerHTML=
+"<h2>Error cargando partidos</h2>";
 
 }
 
-cargarTodo();
+}
 
-setInterval(cargarTodo,30000);
+cargarPartidos();
+
+setInterval(cargarPartidos,60000);
 
 </script>
 
