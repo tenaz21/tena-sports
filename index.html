@@ -56,11 +56,11 @@ border-radius:20px;
 
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-fetch("https://livescore67.p.rapidapi.com/sports",{
+fetch("https://free-football-api-data.p.rapidapi.com/football-get-league-live-match?countryid=13",{
 method:"GET",
 headers:{
 "x-rapidapi-key":apiKey,
-"x-rapidapi-host":"livescore67.p.rapidapi.com"
+"x-rapidapi-host":"free-football-api-data.p.rapidapi.com"
 }
 })
 .then(response=>response.json())
@@ -70,14 +70,15 @@ console.log(data);
 
 let html="";
 
-if(data && data.length>0){
+if(data.response && data.response.length>0){
 
-data.forEach(deporte=>{
+data.response.forEach(partido=>{
 
 html += `
 <div class="card">
-<h2>${deporte.Name}</h2>
-<p>ID: ${deporte.Id}</p>
+<h2>${partido.homeTeam.name} vs ${partido.awayTeam.name}</h2>
+<p>⚽ ${partido.homeScore.current} - ${partido.awayScore.current}</p>
+<p>🔴 EN VIVO</p>
 </div>
 `;
 
@@ -85,7 +86,7 @@ html += `
 
 }else{
 
-html="<h2>No se encontraron deportes</h2>";
+html="<h2>No hay partidos en vivo</h2>";
 
 }
 
@@ -97,7 +98,7 @@ document.getElementById("matches").innerHTML=html;
 console.log(error);
 
 document.getElementById("matches").innerHTML=
-"<h2>Error de API</h2>";
+"<h2>Error cargando API</h2>";
 
 });
 
