@@ -76,36 +76,24 @@ async function cargarEnVivo(){
 
 
 async function cargarProximos(){
+async function cargarProximos(){
     contenido.innerHTML="<h2>Cargando próximos...</h2>";
 
-    let partidosTotales=[];
-
-    for(let i=0;i<3;i++){
-
-        let fecha=new Date();
-
-        fecha.setDate(fecha.getDate()+i);
-
-        fecha=fecha.toISOString().split("T")[0];
-
-        let partidos=await fetchData(`/fixtures?date=${fecha}`);
-
-        partidosTotales.push(...partidos);
-    }
+    const partidos = await fetchData("/fixtures?next=20");
 
     contenido.innerHTML="";
 
-    if(partidosTotales.length===0){
+    if(partidos.length===0){
         contenido.innerHTML="<h2>No hay próximos partidos.</h2>";
         return;
     }
 
-    partidosTotales.forEach(p=>{
+    partidos.forEach(p=>{
         contenido.innerHTML += tarjetaPartido(p);
     });
 }
 
-
+    
 
 async function cargarFinalizados(){
     contenido.innerHTML="<h2>Cargando finalizados...</h2>";
