@@ -9,52 +9,50 @@
 <style>
 body{
 margin:0;
-background:#02122b;
-font-family:Arial,sans-serif;
+background:#03152f;
+font-family:Arial;
 color:white;
 }
 
 header{
-background:#1d4fff;
+background:linear-gradient(90deg,#0d47ff,#2e7dff);
 padding:20px;
-font-size:40px;
+font-size:35px;
 font-weight:bold;
 text-align:center;
-box-shadow:0 4px 10px rgba(0,0,0,.4);
 }
 
 .banner{
 background:red;
 padding:20px;
-font-size:24px;
+font-size:25px;
 font-weight:bold;
 }
 
 .liga{
-background:#132850;
+background:#112a55;
 padding:15px;
 font-size:22px;
 font-weight:bold;
 }
 
 .card{
-background:#10295a;
+background:#15336d;
 margin:20px;
 padding:25px;
 border-radius:25px;
-box-shadow:0 8px 20px rgba(0,0,0,.35);
 }
 
 .estado{
-font-size:30px;
+font-size:28px;
 font-weight:bold;
-color:#00ff88;
+color:#00ff84;
 }
 
 .equipos{
 font-size:24px;
-margin:20px 0;
 line-height:1.6;
+margin:20px 0;
 }
 
 .score{
@@ -64,7 +62,7 @@ font-weight:bold;
 
 .minute{
 font-size:30px;
-color:#00ff88;
+color:#00ff84;
 margin-top:15px;
 }
 
@@ -74,23 +72,20 @@ padding:18px;
 margin-top:20px;
 border:none;
 border-radius:15px;
-background:#2f68ff;
 font-size:24px;
 font-weight:bold;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
 color:white;
-cursor:pointer;
 }
 
 .detalles{
 display:none;
 margin-top:20px;
 padding:20px;
-background:#021633;
+background:#031126;
 border-radius:15px;
-white-space:pre-wrap;
-color:#00ff88;
-font-size:13px;
-overflow:auto;
+font-size:18px;
+line-height:1.7;
 }
 </style>
 </head>
@@ -102,9 +97,7 @@ overflow:auto;
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
-<div id="matches">
-Cargando partidos...
-</div>
+<div id="matches"></div>
 
 <script>
 
@@ -156,15 +149,17 @@ ${partido.scores.home} - ${partido.scores.away}
 ⏱ ${partido.match_status.live_time}'
 </div>
 
-<button onclick="verResumen(
-'${partido.match_id}',
-'${liga.country.country_code}',
-'${liga.stage.stage_code}'
-)">
+<button onclick="toggleDetalles('${partido.match_id}')">
 Ver detalles
 </button>
 
 <div class="detalles" id="detalle-${partido.match_id}">
+📅 Fecha: ${partido.match_date || "No disponible"}<br>
+🏆 Liga: ${liga.stage.stage_name}<br>
+🌍 País: ${liga.country.country_name}<br>
+🔄 Estado: ${partido.match_status.is_in_progress ? "En juego" : "Detenido"}<br>
+⏱ Minuto actual: ${partido.match_status.live_time}'<br>
+🥅 Marcador HT: ${partido.scores.home_1halftime || 0} - ${partido.scores.away_1halftime || 0}
 </div>
 
 </div>
@@ -178,33 +173,15 @@ document.getElementById("matches").innerHTML=html;
 
 }
 
-async function verResumen(matchId,countryCode,stageCode){
+function toggleDetalles(id){
 
-const box=document.getElementById("detalle-"+matchId);
+let box=document.getElementById("detalle-"+id);
 
 if(box.style.display==="block"){
 box.style.display="none";
-return;
-}
-
+}else{
 box.style.display="block";
-box.innerHTML="Cargando detalles...";
-
-const res=await fetch(
-`https://livescore67.p.rapidapi.com/api/livescore/v1/match/summary?sport_id=football&country_code=${countryCode}&stage_code=${stageCode}&match_id=${matchId}`,
-{
-method:"GET",
-headers:{
-"x-rapidapi-key":apiKey,
-"x-rapidapi-host":"livescore67.p.rapidapi.com"
 }
-});
-
-const data=await res.json();
-
-box.innerHTML=`
-<pre>${JSON.stringify(data,null,2)}</pre>
-`;
 
 }
 
