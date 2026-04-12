@@ -96,7 +96,7 @@ margin-top:15px;
 
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-fetch("https://livescore67.p.rapidapi.com/matches/v2/list-live",{
+fetch("https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",{
 method:"GET",
 headers:{
 "x-rapidapi-key":apiKey,
@@ -111,29 +111,23 @@ alert(JSON.stringify(data));
 
 let html="";
 
-if(data.Stages){
+if(data.data && data.data.length > 0){
 
-data.Stages.forEach(stage=>{
+data.data.forEach(partido=>{
 
-stage.Events.forEach(partido=>{
-
-html+=`
+html += `
 <div class="card">
 
 <div class="live">🔴 EN VIVO</div>
 
-<div class="team">${partido.T1[0].Nm}</div>
+<div class="team">${partido.home_name}</div>
 
-<div class="team">${partido.T2[0].Nm}</div>
+<div class="team">${partido.away_name}</div>
 
-<div class="score">
-${partido.Tr1} - ${partido.Tr2}
-</div>
+<div class="score">${partido.score}</div>
 
 </div>
 `;
-
-});
 
 });
 
@@ -143,15 +137,15 @@ html="<h2>No hay partidos en vivo</h2>";
 
 }
 
-document.getElementById("matches").innerHTML=html;
+document.getElementById("matches").innerHTML = html;
 
 })
 .catch(error=>{
 
 console.log(error);
 
-document.getElementById("matches").innerHTML=
-"<h2>Error cargando API</h2>";
+document.getElementById("matches").innerHTML =
+"<h2>Error cargando partidos</h2>";
 
 });
 
