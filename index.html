@@ -181,7 +181,7 @@ box.style.display="block";
 box.innerHTML="<h3>Cargando detalles...</h3>";
 
 const res=await fetch(
-`https://livescore67.p.rapidapi.com/api/livescore/v1/match/details/?sport_id=football&country_code=${countryCode}&stage_code=${stageCode}&match_id=${matchId}`,
+`https://livescore67.p.rapidapi.com/api/livescore/v1/match/details?sport_id=football&country_code=${countryCode}&stage_code=${stageCode}&match_id=${matchId}`,
 {
 method:"GET",
 headers:{
