@@ -59,18 +59,21 @@ async function cargarPartidos(){
 
 try{
 
-const proxy="https://corsproxy.io/?";
+const proxyURL =
+"https://api.allorigins.win/raw?url=" +
+encodeURIComponent("https://api.football-data.org/v4/matches");
 
-const res=await fetch(
-proxy+encodeURIComponent("https://api.football-data.org/v4/matches"),
-{
+const res = await fetch(proxyURL,{
 headers:{
 "X-Auth-Token":API_TOKEN
 }
-}
-);
+});
 
-const data=await res.json();
+const texto = await res.text();
+
+console.log(texto);
+
+const data = JSON.parse(texto);
 
 let html="";
 
@@ -79,22 +82,14 @@ data.matches.slice(0,10).forEach(p=>{
 html+=`
 <div style="
 background:#26478d;
-margin:15px;
 padding:20px;
+margin:15px;
 border-radius:15px;
 ">
-
 <h2>${p.homeTeam.name}</h2>
 <h2>${p.awayTeam.name}</h2>
-
-<h1>
-${p.score.fullTime.home ?? "-"}
--
-${p.score.fullTime.away ?? "-"}
-</h1>
-
+<h1>${p.score.fullTime.home ?? "-"} - ${p.score.fullTime.away ?? "-"}</h1>
 <p>${p.status}</p>
-
 </div>
 `;
 
