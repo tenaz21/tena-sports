@@ -80,7 +80,9 @@ Cargando partidos...
 <script>
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-fetch("https://livescore67.p.rapidapi.com/matches/v2/list-by-date?Category=soccer&Date=2026-04-11", {
+const hoy = new Date().toISOString().split("T")[0];
+
+fetch(`https://livescore67.p.rapidapi.com/matches/v2/list-by-date?Category=soccer&Date=${hoy}`, {
 method: "GET",
 headers: {
 "x-rapidapi-key": apiKey,
@@ -133,5 +135,6 @@ console.log(error);
 document.getElementById("matches").innerHTML = "Error cargando partidos";
 });
 </script>
+
 </body>
 </html>
