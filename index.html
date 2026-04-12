@@ -12,7 +12,7 @@ margin:0;
 font-family:Arial;
 background:#021427;
 color:white;
-padding-bottom:120px;
+padding-bottom:100px;
 }
 .header{
 background:linear-gradient(90deg,#004cff,#39a9ff);
@@ -61,138 +61,49 @@ cursor:pointer;
 .active{
 color:#00bfff;
 }
-.live{
-box-shadow:0 0 20px #00ff99;
-}
 </style>
+
 </head>
 <body>
 
 <div class="header">⚽ TENA SPORTS</div>
 
-<div class="banner" id="tituloBanner">
+<div class="banner" id="banner">
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
-<div id="matches"></div>
+<div id="matches">
+<h2 style="padding:20px;">Cargando partidos...</h2>
+</div>
 
 <div class="bottomnav">
-<div class="navbtn active" onclick="verEnVivo(this)">🔴<br>En Vivo</div>
-<div class="navbtn" onclick="verProximos(this)">📅<br>Próximos</div>
-<div class="navbtn" onclick="verFinalizados(this)">✅<br>Finalizados</div>
+<div class="navbtn active" onclick="mostrarLive(this)">🔴<br>En Vivo</div>
+<div class="navbtn" onclick="mostrarNext(this)">📅<br>Próximos</div>
+<div class="navbtn" onclick="mostrarFinished(this)">✅<br>Finalizados</div>
 </div>
 
 <script>
 
 const API_KEY="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-let todosPartidos=[];
+let partidos=[];
 
 function activar(btn){
 document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));
 btn.classList.add("active");
 }
 
-function fechaHoy(){
-return new Date().toISOString().split("T")[0];
-}
-
-async function cargarTodo(){
-
-let url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fechaHoy()}`;
-
-const res=await fetch(url,{
-headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":"livescore67.p.rapidapi.com"
-}
-});
-
-let data=await res.json();
-
-console.log(data);
-
-todosPartidos=data.data||data||[];
-
-verEnVivo();
-
-}
-
-function render(lista,tipo){
-
-if(!lista.length){
-
-document.getElementById("matches").innerHTML=
-"<h2 style='padding:20px'>No hay partidos disponibles</h2>";
-
-return;
-
-}
-
-let html="";
-
-lista.forEach(liga=>{
-
-if(!liga.matches)return;
-
-html+=`
-<div class="liga">
-🏆 ${liga.stage.stage_name}
-</div>
-`;
-
-liga.matches.forEach(p=>{
-
-let home=p.team_home?.[0]?.team_name||"-";
-let away=p.team_away?.[0]?.team_name||"-";
-
-let hs=p.scores?.home??"-";
-let as=p.scores?.away??"-";
-
-let vivo=p.match_status?.live===1;
-
-let finalizado=p.match_status?.finished===1;
-
-let clase="";
-
-let estado="";
-
-if(vivo){
-
-estado="🔴 EN VIVO";
-clase="live";
-
-}else if(finalizado){
-
-estado="✅ FINALIZADO";
-
-}else{
-
-estado="📅 PRÓXIMO";
-
-}
-
-if(tipo==="live"&&!vivo)return;
-if(tipo==="next"&&(vivo||finalizado))return;
-if(tipo==="finished"&&!finalizado)return;
-
-html+=`
-
-<div class="card ${clase}">
-
-<h2>${estado}</h2>
-
-<br>
-
-<script>
-const API_KEY="TU_API_KEY";
-
-async function probarAPI(){
+async function cargarPartidos(){
 
 try{
 
-const res = await fetch(
-"https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=" + new Date().toISOString().split("T")[0],
+document.getElementById("matches").innerHTML=
+"<h2 style='padding:20px'>Cargando partidos...</h2>";
+
+const fecha=new Date().toISOString().split("T")[0];
+
+const res=await fetch(
+`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`,
 {
 headers:{
 "x-rapidapi-key":API_KEY,
@@ -201,29 +112,163 @@ headers:{
 }
 );
 
-const data = await res.json();
+const data=await res.json();
 
-console.log("RESPUESTA COMPLETA:", data);
+console.log(data);
 
-document.body.innerHTML += `
-<pre style="white-space:pre-wrap;color:white;padding:20px;">
-${JSON.stringify(data,null,2)}
-</pre>
-`;
+if(data.data){
+
+partidos=data.data;
+
+}else if(Array.isArray(data)){
+
+partidos=data;
+
+}else{
+
+throw "La API no devolvió partidos válidos.";
+
+}
+
+mostrarLive();
 
 }catch(err){
 
-document.body.innerHTML += `
-<h2 style="color:red;padding:20px;">
-ERROR: ${err}
+document.getElementById("matches").innerHTML=
+`
+<h2 style="padding:20px;color:red;">
+ERROR CARGANDO API:
 </h2>
+
+<pre style="padding:20px;color:yellow;">
+${err}
+</pre>
 `;
 
 }
 
 }
 
-probarAPI();
+function render(tipo){
+
+let html="";
+
+let encontrados=0;
+
+partidos.forEach(liga=>{
+
+if(!liga.matches)return;
+
+let bloque="";
+
+liga.matches.forEach(p=>{
+
+let vivo=p.match_status?.live===1;
+let finalizado=p.match_status?.finished===1;
+
+if(tipo==="live"&&!vivo)return;
+if(tipo==="next"&&(vivo||finalizado))return;
+if(tipo==="finished"&&!finalizado)return;
+
+encontrados++;
+
+bloque+=`
+
+<div class="card">
+
+<h2>
+${
+tipo==="live"
+?"🔴 EN VIVO"
+:tipo==="next"
+?"📅 PRÓXIMO"
+:"✅ FINALIZADO"
+}
+</h2>
+
+<br>
+
+<div>${p.team_home?.[0]?.team_name||"-"}</div>
+<div>${p.team_away?.[0]?.team_name||"-"}</div>
+
+<div class="score">
+${p.scores?.home??"-"} - ${p.scores?.away??"-"}
+</div>
+
+<div>
+⏱ ${
+vivo
+?p.match_status?.live_time||"En juego"
+:new Date(p.match_date).toLocaleString("es-PE",{
+timeZone:"America/Lima"
+})
+}
+</div>
+
+</div>
+`;
+
+});
+
+if(bloque){
+
+html+=`
+<div class="liga">
+🏆 ${liga.stage?.stage_name||"Liga"}
+</div>
+
+${bloque}
+`;
+
+}
+
+});
+
+if(encontrados===0){
+
+html="<h2 style='padding:20px'>No hay partidos disponibles</h2>";
+
+}
+
+document.getElementById("matches").innerHTML=html;
+
+}
+
+function mostrarLive(btn){
+
+if(btn)activar(btn);
+
+document.getElementById("banner").innerHTML=
+"🔥 HOY: Resultados deportivos EN VIVO";
+
+render("live");
+
+}
+
+function mostrarNext(btn){
+
+if(btn)activar(btn);
+
+document.getElementById("banner").innerHTML=
+"📅 Próximos partidos";
+
+render("next");
+
+}
+
+function mostrarFinished(btn){
+
+if(btn)activar(btn);
+
+document.getElementById("banner").innerHTML=
+"✅ Partidos Finalizados";
+
+render("finished");
+
+}
+
+cargarPartidos();
+
 </script>
 
 </body>
