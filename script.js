@@ -4,6 +4,7 @@ const BASE_URL = "https://v3.football.api-sports.io";
 const contenido = document.getElementById("contenido");
 
 
+// FUNCIÓN GENERAL PARA LLAMAR API
 async function fetchData(endpoint){
     try{
         const res = await fetch(BASE_URL + endpoint,{
@@ -16,6 +17,7 @@ async function fetchData(endpoint){
         const data = await res.json();
 
         return data.response || [];
+
     }catch(error){
         console.log(error);
         return [];
@@ -24,9 +26,11 @@ async function fetchData(endpoint){
 
 
 
+// CREAR TARJETA DE PARTIDO
 function tarjetaPartido(partido){
     return `
         <div class="card">
+
             <div class="team">
                 <img src="${partido.teams.home.logo}" width="30">
                 ${partido.teams.home.name}
@@ -50,13 +54,16 @@ function tarjetaPartido(partido){
                     : "📅 "+new Date(partido.fixture.date).toLocaleString()
                 }
             </p>
+
         </div>
     `;
 }
 
 
 
+// EN VIVO
 async function cargarEnVivo(){
+
     contenido.innerHTML="<h2>Cargando en vivo...</h2>";
 
     const partidos = await fetchData("/fixtures?live=all");
@@ -71,12 +78,14 @@ async function cargarEnVivo(){
     partidos.forEach(p=>{
         contenido.innerHTML += tarjetaPartido(p);
     });
+
 }
 
 
 
+// PRÓXIMOS
 async function cargarProximos(){
-async function cargarProximos(){
+
     contenido.innerHTML="<h2>Cargando próximos...</h2>";
 
     const partidos = await fetchData("/fixtures?next=20");
@@ -91,46 +100,39 @@ async function cargarProximos(){
     partidos.forEach(p=>{
         contenido.innerHTML += tarjetaPartido(p);
     });
+
 }
 
-    
 
+
+// FINALIZADOS
 async function cargarFinalizados(){
+
     contenido.innerHTML="<h2>Cargando finalizados...</h2>";
 
-    let partidosTotales=[];
-
-    for(let i=0;i<3;i++){
-
-        let fecha=new Date();
-
-        fecha.setDate(fecha.getDate()-i);
-
-        fecha=fecha.toISOString().split("T")[0];
-
-        let partidos=await fetchData(`/fixtures?date=${fecha}`);
-
-        partidosTotales.push(...partidos);
-    }
+    const partidos = await fetchData("/fixtures?last=20");
 
     contenido.innerHTML="";
 
-    if(partidosTotales.length===0){
+    if(partidos.length===0){
         contenido.innerHTML="<h2>No hay partidos finalizados.</h2>";
         return;
     }
 
-    partidosTotales.forEach(p=>{
+    partidos.forEach(p=>{
         contenido.innerHTML += tarjetaPartido(p);
     });
+
 }
 
 
 
+// MOSTRAR PAÍSES
 async function cargarPaises(){
+
     contenido.innerHTML="<h2>Cargando países...</h2>";
 
-    const paises=await fetchData("/countries");
+    const paises = await fetchData("/countries");
 
     contenido.innerHTML="";
 
@@ -141,15 +143,19 @@ async function cargarPaises(){
                 🌎 ${pais.name}
             </div>
         `;
+
     });
+
 }
 
 
 
+// VER LIGAS POR PAÍS
 async function verLigasPais(nombrePais){
+
     contenido.innerHTML="<h2>Cargando ligas...</h2>";
 
-    const ligas=await fetchData(`/leagues?country=${nombrePais}`);
+    const ligas = await fetchData(`/leagues?country=${nombrePais}`);
 
     contenido.innerHTML="";
 
@@ -160,41 +166,34 @@ async function verLigasPais(nombrePais){
                 🏆 ${liga.league.name}
             </div>
         `;
+
     });
+
 }
 
 
 
+// VER PARTIDOS DE LIGA
 async function verPartidosLiga(idLiga){
+
     contenido.innerHTML="<h2>Cargando partidos...</h2>";
 
-    let partidosTotales=[];
-
-    for(let i=0;i<3;i++){
-
-        let fecha=new Date();
-
-        fecha.setDate(fecha.getDate()+i);
-
-        fecha=fecha.toISOString().split("T")[0];
-
-        let partidos=await fetchData(`/fixtures?league=${idLiga}&date=${fecha}`);
-
-        partidosTotales.push(...partidos);
-    }
+    const partidos = await fetchData(`/fixtures?league=${idLiga}&next=10`);
 
     contenido.innerHTML="";
 
-    if(partidosTotales.length===0){
+    if(partidos.length===0){
         contenido.innerHTML="<h2>No hay partidos disponibles.</h2>";
         return;
     }
 
-    partidosTotales.forEach(p=>{
+    partidos.forEach(p=>{
         contenido.innerHTML += tarjetaPartido(p);
     });
+
 }
 
 
 
+// CARGA INICIAL
 cargarEnVivo();
