@@ -139,6 +139,16 @@ cursor:pointer;
 .active{
 color:#00bfff;
 }
+
+.livePulse{
+animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+0%{opacity:1;}
+50%{opacity:.4;}
+100%{opacity:1;}
+}
 </style>
 
 </head>
@@ -186,16 +196,39 @@ return d.toISOString().split("T")[0];
 
 function formatearFecha(fecha){
 let d=new Date(fecha);
-return d.toLocaleString("es-ES");
+
+return d.toLocaleDateString("es-ES",{
+day:"numeric",
+month:"short"
+})+" - "+
+d.toLocaleTimeString("es-ES",{
+hour:"numeric",
+minute:"2-digit"
+});
+}
+
+function tiempoRestante(fecha){
+
+let ahora=new Date();
+let partido=new Date(fecha);
+
+let diff=partido-ahora;
+
+let horas=Math.floor(diff/1000/60/60);
+
+return "⏳ Faltan "+horas+" horas";
+
 }
 
 function toggleDetalles(id){
+
 let box=document.getElementById(id);
 
 box.style.display=
 box.style.display==="block"
 ?"none"
 :"block";
+
 }
 
 async function obtener(fecha,enVivo=false){
@@ -264,7 +297,7 @@ let glow="";
 
 if(modoActual==="live"){
 
-estado="🔴 EN VIVO";
+estado="<span class='livePulse'>🔴 EN VIVO</span>";
 glow="box-shadow:0 0 25px #00ff99;";
 
 }
@@ -308,6 +341,10 @@ modoActual==="live"
 : formatearFecha(p.match_date)
 }
 </div>
+
+${modoActual==="next"
+? "<br>"+tiempoRestante(p.match_date)
+: ""}
 
 <button class="detBtn"
 onclick="toggleDetalles('det${c}')">
@@ -392,6 +429,16 @@ if(modoActual==="next") obtener(fechaOffset(1));
 if(modoActual==="finished") obtener(fechaOffset(-1));
 
 }
+
+setInterval(()=>{
+
+if(modoActual==="live"){
+
+recargarTodo();
+
+}
+
+},30000);
 
 verEnVivo();
 
