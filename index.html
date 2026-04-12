@@ -80,7 +80,7 @@ Cargando partidos...
 <script>
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-fetch("https://livescore67.p.rapidapi.com/sport/list", {
+fetch("https://livescore67.p.rapidapi.com/matches/v2/list-live?Category=soccer", {
 method: "GET",
 headers: {
 "x-rapidapi-key": apiKey,
@@ -92,23 +92,41 @@ headers: {
 
 console.log(data);
 
-document.getElementById("matches").innerHTML = `
+let partidos = data.Stages;
+let html = "";
+
+partidos.forEach(stage => {
+
+stage.Events.forEach(partido => {
+
+html += `
 <div class="card">
-<div class="live">🟢 API CONECTADA</div>
+
+<div class="live">🔴 EN VIVO</div>
+
 <div class="match">
-<span>LiveScore</span>
-<span>Funcionando</span>
+<span>${partido.T1[0].Nm}</span>
+<span>${partido.T2[0].Nm}</span>
 </div>
-<div class="score">✔</div>
+
+<div class="score">
+${partido.Tr1} - ${partido.Tr2}
+</div>
+
 </div>
 `;
 
+});
+
+});
+
+document.getElementById("matches").innerHTML = html;
+
 })
 .catch(error => {
-document.getElementById("matches").innerHTML = "Error cargando API";
 console.log(error);
+document.getElementById("matches").innerHTML = "No hay partidos en vivo";
 });
 </script>
-
 </body>
 </html>
