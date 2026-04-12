@@ -10,12 +10,12 @@
 body{
 margin:0;
 background:#021427;
-font-family:Arial;
+font-family:Arial,sans-serif;
 color:white;
 }
 
 .header{
-background:linear-gradient(90deg,#004cff,#39a9ff);
+background:linear-gradient(90deg,#0055ff,#39a9ff);
 padding:25px;
 font-size:32px;
 font-weight:bold;
@@ -34,29 +34,54 @@ padding:20px;
 }
 
 .card{
-background:#26478d;
+background:#2e4f9e;
 padding:20px;
-margin-bottom:15px;
-border-radius:15px;
+margin-bottom:20px;
+border-radius:20px;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
+
+.team{
+font-size:28px;
+font-weight:bold;
+margin-bottom:10px;
 }
 
 .score{
-font-size:35px;
+font-size:45px;
 font-weight:bold;
-margin-top:10px;
+margin:15px 0;
+}
+
+.date{
+font-size:20px;
+opacity:0.8;
+}
+
+.loading{
+font-size:28px;
+padding:20px;
+}
+
+.error{
+color:red;
+font-size:28px;
+padding:20px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">⚽ TENA SPORTS</div>
+<div class="header">
+⚽ TENA SPORTS
+</div>
 
 <div class="banner">
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
-<div id="matches">
+<div id="matches" class="loading">
 Cargando partidos...
 </div>
 
@@ -67,25 +92,36 @@ async function cargarPartidos(){
 try{
 
 const res = await fetch(
-"https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=133602"
+"https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328"
 );
 
 const data = await res.json();
 
 let html="";
 
-data.results.forEach(p=>{
+data.events.forEach(partido=>{
 
 html += `
 <div class="card">
-<h2>${p.strHomeTeam}</h2>
-<h2>${p.strAwayTeam}</h2>
 
-<div class="score">
-${p.intHomeScore} - ${p.intAwayScore}
+<div class="team">
+${partido.strHomeTeam}
 </div>
 
-<p>${p.dateEvent}</p>
+<div class="team">
+${partido.strAwayTeam}
+</div>
+
+<div class="score">
+VS
+</div>
+
+<div class="date">
+📅 ${partido.dateEvent}
+<br><br>
+🕒 ${partido.strTime}
+</div>
+
 </div>
 `;
 
@@ -96,7 +132,7 @@ document.getElementById("matches").innerHTML = html;
 }catch(error){
 
 document.getElementById("matches").innerHTML =
-"<h2 style='color:red'>ERROR: "+error+"</h2>";
+"<div class='error'>ERROR: "+error+"</div>";
 
 }
 
