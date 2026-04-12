@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>TENA SPORTS</title>
 
 <style>
 body{
 margin:0;
-background:#001020;
+background:#021427;
 font-family:Arial;
 color:white;
-padding-bottom:100px;
+padding-bottom:110px;
 }
 
 .header{
-background:linear-gradient(90deg,#004cff,#33a1ff);
-padding:20px;
+background:linear-gradient(90deg,#004dff,#35a7ff);
+padding:25px;
 font-size:32px;
 font-weight:bold;
 text-align:center;
@@ -25,23 +26,23 @@ text-align:center;
 .banner{
 background:red;
 padding:20px;
-font-size:22px;
+font-size:24px;
 font-weight:bold;
 }
 
 .controls{
 padding:15px;
+background:#041a33;
 display:flex;
 gap:10px;
-background:#02152d;
 }
 
 input{
 flex:1;
 padding:12px;
-font-size:18px;
 border:none;
 border-radius:10px;
+font-size:16px;
 }
 
 .buscar{
@@ -49,40 +50,50 @@ padding:12px 20px;
 background:#00aaff;
 border:none;
 border-radius:10px;
-color:white;
 font-weight:bold;
+color:white;
 }
 
 .liga{
-background:#162d5c;
+background:#16325f;
 padding:15px;
-font-size:20px;
+font-size:22px;
 font-weight:bold;
 }
 
 .card{
-background:#1c3d82;
+background:#1d3f80;
 margin:15px;
 padding:20px;
 border-radius:20px;
+box-shadow:0 0 20px #00000050;
 }
 
 .estado{
-font-size:24px;
-color:#00ff88;
+font-size:26px;
 font-weight:bold;
+color:#00ff99;
+margin-bottom:15px;
 }
 
 .score{
 font-size:50px;
 font-weight:bold;
-margin:15px 0;
+margin:20px 0;
+}
+
+.detalles{
+margin-top:15px;
+padding:15px;
+background:#00152f;
+border-radius:15px;
+display:none;
 }
 
 button{
 width:100%;
 padding:15px;
-background:linear-gradient(90deg,#11c7f3,#147dff);
+background:linear-gradient(90deg,#00c6ff,#0072ff);
 border:none;
 border-radius:15px;
 font-size:18px;
@@ -109,11 +120,10 @@ cursor:pointer;
 }
 
 .active{
-color:#00bbff;
+color:#00bfff;
 }
 </style>
 </head>
-
 <body>
 
 <div class="header">⚽ TENA SPORTS</div>
@@ -124,47 +134,46 @@ color:#00bbff;
 
 <div class="controls">
 <input type="date" id="fechaInput">
-<button class="buscar" onclick="buscarPorFecha()">Buscar</button>
+<button class="buscar" onclick="buscarFecha()">Buscar</button>
 </div>
 
 <div id="matches"></div>
 
 <div class="bottomnav">
-<div class="navbtn active" onclick="modoLive(this)">🔴<br>En Vivo</div>
-<div class="navbtn" onclick="modoTomorrow(this)">📅<br>Próximos</div>
-<div class="navbtn" onclick="modoYesterday(this)">✅<br>Finalizados</div>
+<div class="navbtn active" onclick="verEnVivo(this)">🔴<br>En Vivo</div>
+<div class="navbtn" onclick="verProximos(this)">📅<br>Próximos</div>
+<div class="navbtn" onclick="verFinalizados(this)">✅<br>Finalizados</div>
 </div>
 
 <script>
 
 const API_KEY="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-let fechaManual=null;
-
-function activarBoton(btn){
+function activar(btn){
 document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));
 btn.classList.add("active");
 }
 
-function hoy(){
+function fechaHoy(){
 return new Date().toISOString().split("T")[0];
 }
 
-function mañana(){
+function fechaMañana(){
 let d=new Date();
 d.setDate(d.getDate()+1);
 return d.toISOString().split("T")[0];
 }
 
-function ayer(){
+function fechaAyer(){
 let d=new Date();
 d.setDate(d.getDate()-1);
 return d.toISOString().split("T")[0];
 }
 
-async function cargar(endpoint){
+async function obtener(url){
 
-const res=await fetch(endpoint,{
+const res=await fetch(url,{
+method:"GET",
 headers:{
 "x-rapidapi-key":API_KEY,
 "x-rapidapi-host":"livescore6.p.rapidapi.com"
@@ -173,52 +182,73 @@ headers:{
 
 const data=await res.json();
 
-renderizar(data.data||[]);
+console.log(data);
+
+return data;
 }
 
-function modoLive(btn){
-activarBoton(btn);
-
-fechaManual=null;
+async function verEnVivo(btn){
+activar(btn);
 
 document.getElementById("tituloBanner").innerHTML=
 "🔥 HOY: Resultados deportivos EN VIVO";
 
-cargar("https://livescore6.p.rapidapi.com/api/livescore/v1/match/live");
+let data=await obtener(
+"https://livescore6.p.rapidapi.com/api/livescore/v1/match/live"
+);
+
+renderizar(data.data || []);
 }
 
-function modoTomorrow(btn){
-activarBoton(btn);
-
-fechaManual=mañana();
+async function verProximos(btn){
+activar(btn);
 
 document.getElementById("tituloBanner").innerHTML=
 "📅 Próximos partidos";
 
-cargar(`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fechaManual}`);
+let data=await obtener(
+`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fechaMañana()}`
+);
+
+renderizar(data.data || []);
 }
 
-function modoYesterday(btn){
-activarBoton(btn);
-
-fechaManual=ayer();
+async function verFinalizados(btn){
+activar(btn);
 
 document.getElementById("tituloBanner").innerHTML=
 "✅ Partidos Finalizados";
 
-cargar(`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fechaManual}`);
+let data=await obtener(
+`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fechaAyer()}`
+);
+
+renderizar(data.data || []);
 }
 
-function buscarPorFecha(){
+async function buscarFecha(){
 
-fechaManual=document.getElementById("fechaInput").value;
+let fecha=document.getElementById("fechaInput").value;
 
-if(!fechaManual)return;
+if(!fecha)return;
 
 document.getElementById("tituloBanner").innerHTML=
-"📆 Partidos del "+fechaManual;
+"📆 Partidos del "+fecha;
 
-cargar(`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fechaManual}`);
+let data=await obtener(
+`https://livescore6.p.rapidapi.com/api/livescore/v1/match/list?date=${fecha}`
+);
+
+renderizar(data.data || []);
+}
+
+function toggleDetalles(id){
+let box=document.getElementById(id);
+
+box.style.display=
+box.style.display==="block"
+? "none"
+: "block";
 }
 
 function renderizar(partidos){
@@ -231,23 +261,27 @@ document.getElementById("matches").innerHTML=html;
 return;
 }
 
-let ligas={};
+let agrupados={};
 
 partidos.forEach(p=>{
 
-let liga=p.league_name||"Sin liga";
+let liga=p.league_name || "Sin liga";
 
-if(!ligas[liga]) ligas[liga]=[];
+if(!agrupados[liga]) agrupados[liga]=[];
 
-ligas[liga].push(p);
+agrupados[liga].push(p);
 
 });
 
-for(let liga in ligas){
+let contador=0;
+
+for(let liga in agrupados){
 
 html+=`<div class="liga">🏆 ${liga}</div>`;
 
-ligas[liga].forEach(p=>{
+agrupados[liga].forEach(p=>{
+
+contador++;
 
 html+=`
 
@@ -257,8 +291,8 @@ html+=`
 ${p.status || "PARTIDO"}
 </div>
 
-<div>
-${p.home_name}<br>
+<div style="font-size:20px;">
+${p.home_name}<br><br>
 ${p.away_name}
 </div>
 
@@ -267,10 +301,19 @@ ${p.scores?.home ?? "-"} - ${p.scores?.away ?? "-"}
 </div>
 
 <div>
-⏱ ${p.match_status?.live_time || p.match_date}
+⏱ ${p.match_status?.live_time || p.match_date || ""}
 </div>
 
-<button>Ver detalles</button>
+<button onclick="toggleDetalles('det${contador}')">
+Ver detalles
+</button>
+
+<div class="detalles" id="det${contador}">
+📅 Fecha: ${p.match_date || "No disponible"}<br><br>
+🏆 Liga: ${p.league_name || "No disponible"}<br><br>
+🌍 País: ${p.country_name || "No disponible"}<br><br>
+📌 Estado: ${p.status || "No disponible"}
+</div>
 
 </div>
 
@@ -281,10 +324,9 @@ ${p.scores?.home ?? "-"} - ${p.scores?.away ?? "-"}
 }
 
 document.getElementById("matches").innerHTML=html;
-
 }
 
-modoLive();
+verEnVivo();
 
 </script>
 
