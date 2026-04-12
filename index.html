@@ -2,339 +2,344 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>TENA SPORTS</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-background:linear-gradient(180deg,#021024,#031b3d);
+margin:0;
+font-family:Arial;
+background:linear-gradient(180deg,#00152d,#000814);
 color:white;
-padding-bottom:100px;
+padding-bottom:120px;
 }
 
-/* HEADER */
-header{
-background:linear-gradient(90deg,#0048ff,#1e90ff);
-padding:20px;
-font-size:34px;
+.header{
+background:linear-gradient(90deg,#0047ff,#2ea0ff);
+padding:25px;
+font-size:30px;
 font-weight:bold;
 text-align:center;
-position:sticky;
-top:0;
-z-index:999;
-box-shadow:0 4px 15px rgba(0,0,0,.5);
+box-shadow:0 4px 20px #000;
 }
 
-/* BANNER */
 .banner{
-background:linear-gradient(90deg,#ff2d2d,#ff0000);
+background:red;
 padding:20px;
-font-size:25px;
-font-weight:bold;
-}
-
-/* LIGAS */
-.liga{
-background:#112a55;
-padding:15px;
 font-size:22px;
 font-weight:bold;
-border-left:5px solid gold;
 }
 
-/* CARD */
+.liga{
+background:#162d5c;
+padding:15px;
+font-size:18px;
+font-weight:bold;
+border-left:8px solid gold;
+}
+
 .card{
-background:linear-gradient(180deg,#183d82,#102d66);
+background:linear-gradient(180deg,#1d3f86,#1a2f66);
 margin:20px;
 padding:25px;
 border-radius:25px;
-box-shadow:
-0 10px 25px rgba(0,0,0,.4),
-0 0 20px rgba(0,100,255,.15);
-animation:fade .4s ease;
-border:1px solid rgba(255,255,255,.05);
-}
-
-@keyframes fade{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+box-shadow:0 0 25px rgba(0,100,255,.35);
 }
 
 .estado{
-font-size:30px;
+font-size:20px;
 font-weight:bold;
-color:#00ff84;
-text-shadow:0 0 10px #00ff84;
+color:#00ff88;
+text-shadow:0 0 10px #00ff88;
 }
 
 .equipos{
-font-size:24px;
-line-height:1.6;
-margin:20px 0;
+font-size:18px;
+line-height:1.8;
+margin-top:20px;
 }
 
 .score{
-font-size:70px;
+font-size:55px;
 font-weight:bold;
-text-shadow:
-0 0 10px rgba(255,255,255,.2),
-0 0 20px rgba(255,255,255,.1);
-margin:15px 0;
+margin:20px 0;
 }
 
 .minute{
-font-size:30px;
-color:#00ff84;
-font-weight:bold;
+font-size:18px;
+color:#00ff88;
 }
 
-/* BOTONES */
 button{
 width:100%;
 padding:18px;
 margin-top:20px;
 border:none;
-border-radius:18px;
-font-size:22px;
+border-radius:20px;
+font-size:20px;
 font-weight:bold;
-background:linear-gradient(90deg,#00c6ff,#0072ff);
+background:linear-gradient(90deg,#11c7f3,#147dff);
 color:white;
-box-shadow:0 0 20px rgba(0,140,255,.4);
 cursor:pointer;
-transition:.3s;
 }
 
-button:hover{
-transform:scale(1.03);
-}
-
-/* DETALLES */
-.detalles{
-display:none;
-margin-top:20px;
-padding:20px;
-background:#031126;
-border-radius:18px;
-font-size:19px;
-line-height:1.8;
-}
-
-/* NAVBAR */
-.navbar{
+.bottomnav{
 position:fixed;
 bottom:0;
 width:100%;
-background:rgba(3,17,38,.95);
-backdrop-filter:blur(10px);
 display:flex;
-justify-content:space-around;
-padding:10px 0;
-box-shadow:0 -5px 20px rgba(0,0,0,.5);
-border-top:1px solid rgba(255,255,255,.1);
-z-index:999;
+background:#001a33;
+box-shadow:0 -5px 20px black;
 }
 
-.nav-btn{
-background:none;
-border:none;
-color:#aaa;
-font-size:16px;
+.navbtn{
+flex:1;
+padding:20px;
+text-align:center;
+font-size:18px;
 font-weight:bold;
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:4px;
-padding:8px;
-transition:.3s;
+cursor:pointer;
 }
 
-.nav-btn.active{
-color:#00c6ff;
-transform:scale(1.08);
+.active{
+color:#11c7f3;
+}
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.85);
+justify-content:center;
+align-items:center;
+padding:20px;
+box-sizing:border-box;
+}
+
+.modal-content{
+background:#112244;
+padding:25px;
+border-radius:20px;
+width:100%;
+max-width:450px;
+box-shadow:0 0 30px #000;
+}
+
+.close{
+background:red;
+padding:10px;
+margin-top:20px;
 }
 </style>
 </head>
 <body>
 
-<header>⚽ TENA SPORTS</header>
+<div class="header">⚽ TENA SPORTS</div>
 
-<div class="banner">
+<div class="banner" id="tituloBanner">
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
-<div id="contenido"></div>
+<div id="matches"></div>
 
-<!-- NAVBAR -->
-<div class="navbar">
-<button class="nav-btn active" onclick="mostrarSeccion('live')">
-🔴
-<span>En Vivo</span>
-</button>
+<div class="bottomnav">
+<div class="navbtn active" onclick="cambiarSeccion('live',this)">🔴<br>En Vivo</div>
+<div class="navbtn" onclick="cambiarSeccion('upcoming',this)">📅<br>Próximos</div>
+<div class="navbtn" onclick="cambiarSeccion('finished',this)">✅<br>Finalizados</div>
+</div>
 
-<button class="nav-btn" onclick="mostrarSeccion('upcoming')">
-📅
-<span>Próximos</span>
-</button>
-
-<button class="nav-btn" onclick="mostrarSeccion('finished')">
-✅
-<span>Finalizados</span>
-</button>
+<div class="modal" id="modal">
+<div class="modal-content" id="modalContent"></div>
 </div>
 
 <script>
 
-const apiKey="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
-
 let seccionActual="live";
 
-function mostrarSeccion(tipo){
+const API_KEY="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
+
+function formatearFecha(fecha){
+
+const f=new Date(fecha);
+
+return f.toLocaleString("es-PE",{
+day:"2-digit",
+month:"2-digit",
+hour:"2-digit",
+minute:"2-digit"
+});
+
+}
+
+function cambiarSeccion(tipo,elemento){
 
 seccionActual=tipo;
 
-document.querySelectorAll(".nav-btn").forEach(btn=>{
-btn.classList.remove("active");
-});
+document.querySelectorAll(".navbtn").forEach(btn=>btn.classList.remove("active"));
 
-event.target.closest("button").classList.add("active");
+elemento.classList.add("active");
+
+document.getElementById("tituloBanner").innerHTML=
+tipo==="live"?"🔥 HOY: Resultados deportivos EN VIVO":
+tipo==="upcoming"?"📅 Próximos partidos":
+"✅ Partidos Finalizados";
 
 cargarDatos();
 
 }
 
-function obtenerFecha(offset=0){
-
-const fecha=new Date();
-
-fecha.setDate(fecha.getDate()+offset);
-
-return fecha.toISOString().split("T")[0];
-
-}
-
 async function cargarDatos(){
 
-let url="";
+let endpoint="";
 
 if(seccionActual==="live"){
-url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football`;
+endpoint="https://livescore6.p.rapidapi.com/api/livescore/v1/match/live";
 }
 
 if(seccionActual==="upcoming"){
-url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${obtenerFecha(1)}`;
+endpoint="https://livescore6.p.rapidapi.com/api/livescore/v1/match/upcoming";
 }
 
 if(seccionActual==="finished"){
-url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${obtenerFecha(-1)}`;
+endpoint="https://livescore6.p.rapidapi.com/api/livescore/v1/match/ended";
 }
 
-const res=await fetch(url,{
+const res=await fetch(endpoint,{
+method:"GET",
 headers:{
-"x-rapidapi-key":apiKey,
-"x-rapidapi-host":"livescore67.p.rapidapi.com"
+"x-rapidapi-key":API_KEY,
+"x-rapidapi-host":"livescore6.p.rapidapi.com"
 }
 });
 
 const data=await res.json();
 
+renderizar(data.data);
+
+}
+
+function renderizar(partidos){
+
 let html="";
 
-data.forEach(liga=>{
+if(!partidos||partidos.length===0){
 
-if(!liga.matches || liga.matches.length===0)return;
+html="<h2 style='padding:30px;'>No hay partidos aquí</h2>";
 
-html+=`
-<div class="liga">
-🏆 ${liga.stage.stage_name}
-</div>
-`;
+document.getElementById("matches").innerHTML=html;
 
-liga.matches.forEach(partido=>{
+return;
+}
+
+let ligas={};
+
+partidos.forEach(partido=>{
+
+const liga=partido.league_name||"Sin liga";
+
+if(!ligas[liga]) ligas[liga]=[];
+
+ligas[liga].push(partido);
+
+});
+
+for(let liga in ligas){
+
+html+=`<div class="liga">🏆 ${liga}</div>`;
+
+ligas[liga].forEach(partido=>{
 
 html+=`
 <div class="card">
 
 <div class="estado">
 ${
-seccionActual==="live"
-?"🔴 EN VIVO"
-:seccionActual==="finished"
-?"✅ FINALIZADO"
-:"📅 PRÓXIMO"
+seccionActual==="live"?"🔴 EN VIVO":
+seccionActual==="upcoming"?"📅 PRÓXIMO":
+"✅ FINALIZADO"
 }
 </div>
 
 <div class="equipos">
-${partido.team_home[0].team_name}<br>
-${partido.team_away[0].team_name}
+${partido.home_name}<br>
+${partido.away_name}
 </div>
 
 <div class="score">
-${partido.scores?.home ?? "-"} - ${partido.scores?.away ?? "-"}
+${
+seccionActual==="upcoming"
+?"VS"
+:`${partido.scores?.home ?? 0} - ${partido.scores?.away ?? 0}`
+}
 </div>
 
 <div class="minute">
-⏱ ${partido.match_status?.live_time ?? partido.match_date}
+${
+seccionActual==="live"
+?`⏱ ${partido.match_status?.live_time}'`
+:seccionActual==="upcoming"
+?`📅 ${formatearFecha(partido.match_date)}`
+:`✅ Finalizado`
+}
 </div>
 
-<button onclick="toggleDetalles('${partido.match_id}')">
+<button onclick='verDetalles(${JSON.stringify(partido)})'>
 Ver detalles
 </button>
 
-<div class="detalles" id="detalle-${partido.match_id}">
-📅 Fecha: ${partido.match_date}<br>
-🏆 Liga: ${liga.stage.stage_name}<br>
-🌍 País: ${liga.country.country_name}<br>
-⚽ Local: ${partido.team_home[0].team_name}<br>
-⚽ Visitante: ${partido.team_away[0].team_name}
-</div>
-
 </div>
 `;
-
 });
-
-});
-
-document.getElementById("contenido").innerHTML=
-html || "<h2 style='padding:20px;'>No hay partidos disponibles</h2>";
 
 }
 
-function toggleDetalles(id){
+document.getElementById("matches").innerHTML=html;
 
-let box=document.getElementById("detalle-"+id);
+}
 
-box.style.display=
-box.style.display==="block"
-?"none"
-:"block";
+function verDetalles(partido){
+
+document.getElementById("modal").style.display="flex";
+
+document.getElementById("modalContent").innerHTML=`
+
+<h2>${partido.home_name} vs ${partido.away_name}</h2>
+
+<p>🏆 Liga: ${partido.league_name}</p>
+
+<p>🌍 País: ${partido.country_name}</p>
+
+<p>📅 Fecha: ${formatearFecha(partido.match_date)}</p>
+
+<p>⚽ Marcador: ${partido.scores?.home ?? 0} - ${partido.scores?.away ?? 0}</p>
+
+<p>⏱ Estado:
+${
+seccionActual==="live"
+?partido.match_status?.live_time+"'"
+:seccionActual==="upcoming"
+?"Pendiente"
+:"Finalizado"
+}
+</p>
+
+<button class="close" onclick="cerrarModal()">Cerrar</button>
+
+`;
+
+}
+
+function cerrarModal(){
+
+document.getElementById("modal").style.display="none";
 
 }
 
 cargarDatos();
-
-setInterval(()=>{
-
-if(seccionActual==="live"){
-cargarDatos();
-}
-
-},10000);
 
 </script>
 
