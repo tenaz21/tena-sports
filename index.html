@@ -43,6 +43,12 @@ color:white;
 border-radius:30px;
 font-weight:bold;
 min-width:100px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.menu button.active{
+background:#2563eb;
 }
 
 .container{
@@ -109,23 +115,21 @@ font-size:14px;
 </header>
 
 <div class="menu">
-<button>⚽ Fútbol</button>
-<button>🥊 MMA</button>
-<button>🎾 Tennis</button>
-<button>🏐 Voley</button>
-<button>🎤 Freestyle</button>
+<button onclick="filtrar('todos')" class="active">🔥 Todos</button>
+<button onclick="filtrar('futbol')">⚽ Fútbol</button>
+<button onclick="filtrar('mma')">🥊 MMA</button>
+<button onclick="filtrar('tennis')">🎾 Tennis</button>
 </div>
 
 <div class="container">
 
-<div class="card">
+<div class="card futbol">
 <div class="live">🔴 EN VIVO</div>
 <div class="teams">
 <div class="team">
 <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg">
 Real Madrid
 </div>
-
 <div class="team" style="justify-content:flex-end;">
 Barcelona
 <img src="https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg">
@@ -135,37 +139,53 @@ Barcelona
 <div class="info">Minuto 78</div>
 </div>
 
-<div class="card">
+<div class="card tennis">
 <div class="live">🔴 EN VIVO</div>
 <div class="teams">
-<div class="team">
-🎾 Djokovic
-</div>
-
-<div class="team" style="justify-content:flex-end;">
-Nadal 🎾
-</div>
+<div class="team">🎾 Djokovic</div>
+<div class="team" style="justify-content:flex-end;">Nadal 🎾</div>
 </div>
 <div class="score">1 - 0</div>
 <div class="info">Segundo Set</div>
 </div>
 
-<div class="card">
+<div class="card mma">
 <div class="live">🔴 EN VIVO</div>
 <div class="teams">
-<div class="team">
-🥊 McGregor
-</div>
-
-<div class="team" style="justify-content:flex-end;">
-Diaz 🥊
-</div>
+<div class="team">🥊 McGregor</div>
+<div class="team" style="justify-content:flex-end;">Diaz 🥊</div>
 </div>
 <div class="score">Round 2</div>
 <div class="info">UFC Main Event</div>
 </div>
 
 </div>
+
+<script>
+function filtrar(deporte){
+
+let cards=document.querySelectorAll('.card');
+let botones=document.querySelectorAll('.menu button');
+
+botones.forEach(btn=>btn.classList.remove('active'));
+event.target.classList.add('active');
+
+cards.forEach(card=>{
+
+if(deporte==="todos"){
+card.style.display="block";
+}
+else if(card.classList.contains(deporte)){
+card.style.display="block";
+}
+else{
+card.style.display="none";
+}
+
+});
+
+}
+</script>
 
 </body>
 </html>
