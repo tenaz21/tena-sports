@@ -7,46 +7,69 @@
 <title>TENA SPORTS</title>
 
 <style>
-body{
+*{
 margin:0;
-background:#03152f;
+padding:0;
+box-sizing:border-box;
 font-family:Arial;
-color:white;
 }
 
+body{
+background:linear-gradient(180deg,#021024,#031b3d);
+color:white;
+padding-bottom:100px;
+}
+
+/* HEADER */
 header{
-background:linear-gradient(90deg,#0d47ff,#2e7dff);
+background:linear-gradient(90deg,#0048ff,#1e90ff);
 padding:20px;
-font-size:35px;
+font-size:34px;
 font-weight:bold;
 text-align:center;
+position:sticky;
+top:0;
+z-index:999;
+box-shadow:0 4px 15px rgba(0,0,0,.5);
 }
 
+/* BANNER */
 .banner{
-background:red;
+background:linear-gradient(90deg,#ff2d2d,#ff0000);
 padding:20px;
 font-size:25px;
 font-weight:bold;
 }
 
+/* LIGAS */
 .liga{
 background:#112a55;
 padding:15px;
 font-size:22px;
 font-weight:bold;
+border-left:5px solid gold;
 }
 
+/* CARDS */
 .card{
-background:#15336d;
+background:linear-gradient(180deg,#183d82,#102d66);
 margin:20px;
 padding:25px;
 border-radius:25px;
+box-shadow:0 10px 25px rgba(0,0,0,.4);
+animation:fade .4s ease;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
 }
 
 .estado{
-font-size:28px;
+font-size:30px;
 font-weight:bold;
 color:#00ff84;
+text-shadow:0 0 10px #00ff84;
 }
 
 .equipos{
@@ -63,29 +86,66 @@ font-weight:bold;
 .minute{
 font-size:30px;
 color:#00ff84;
-margin-top:15px;
+margin-top:10px;
 }
 
+/* BOTONES */
 button{
 width:100%;
 padding:18px;
 margin-top:20px;
 border:none;
-border-radius:15px;
-font-size:24px;
+border-radius:18px;
+font-size:22px;
 font-weight:bold;
 background:linear-gradient(90deg,#00c6ff,#0072ff);
 color:white;
+box-shadow:0 0 20px rgba(0,140,255,.4);
+cursor:pointer;
+transition:.3s;
 }
 
+button:hover{
+transform:scale(1.03);
+}
+
+/* DETALLES */
 .detalles{
 display:none;
 margin-top:20px;
 padding:20px;
 background:#031126;
-border-radius:15px;
+border-radius:18px;
+font-size:19px;
+line-height:1.8;
+}
+
+/* NAVBAR */
+.navbar{
+position:fixed;
+bottom:0;
+width:100%;
+background:#031126;
+display:flex;
+justify-content:space-around;
+padding:15px 0;
+box-shadow:0 -5px 20px rgba(0,0,0,.5);
+}
+
+.nav-btn{
+background:none;
+border:none;
+color:white;
 font-size:18px;
-line-height:1.7;
+font-weight:bold;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:5px;
+}
+
+.nav-btn.active{
+color:#00c6ff;
 }
 </style>
 </head>
@@ -97,18 +157,52 @@ line-height:1.7;
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
 
-<div id="matches"></div>
+<div id="contenido"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+<button class="nav-btn active" onclick="mostrarSeccion('live')">🔴<span>En Vivo</span></button>
+<button class="nav-btn" onclick="mostrarSeccion('upcoming')">📅<span>Próximos</span></button>
+<button class="nav-btn" onclick="mostrarSeccion('finished')">✅<span>Finalizados</span></button>
+</div>
 
 <script>
 
 const apiKey="46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-async function cargarPartidos(){
+let seccionActual="live";
+
+function mostrarSeccion(tipo){
+
+seccionActual=tipo;
+
+document.querySelectorAll(".nav-btn").forEach(btn=>btn.classList.remove("active"));
+
+event.target.closest("button").classList.add("active");
+
+cargarDatos();
+
+}
+
+async function cargarDatos(){
+
+let endpoint="";
+
+if(seccionActual==="live"){
+endpoint="live";
+}
+
+if(seccionActual==="upcoming"){
+endpoint="list?date=2026-04-13";
+}
+
+if(seccionActual==="finished"){
+endpoint="list?date=2026-04-11";
+}
 
 const res=await fetch(
-"https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",
+`https://livescore67.p.rapidapi.com/api/livescore/v1/match/${endpoint}?sport_id=football`,
 {
-method:"GET",
 headers:{
 "x-rapidapi-key":apiKey,
 "x-rapidapi-host":"livescore67.p.rapidapi.com"
@@ -133,7 +227,7 @@ html+=`
 <div class="card">
 
 <div class="estado">
-🔴 EN VIVO
+${seccionActual==="live"?"🔴 EN VIVO":seccionActual==="finished"?"✅ FINALIZADO":"📅 PRÓXIMO"}
 </div>
 
 <div class="equipos">
@@ -142,11 +236,11 @@ ${partido.team_away[0].team_name}
 </div>
 
 <div class="score">
-${partido.scores.home} - ${partido.scores.away}
+${partido.scores?.home ?? "-"} - ${partido.scores?.away ?? "-"}
 </div>
 
 <div class="minute">
-⏱ ${partido.match_status.live_time}'
+⏱ ${partido.match_status?.live_time ?? partido.match_date}
 </div>
 
 <button onclick="toggleDetalles('${partido.match_id}')">
@@ -154,12 +248,11 @@ Ver detalles
 </button>
 
 <div class="detalles" id="detalle-${partido.match_id}">
-📅 Fecha: ${partido.match_date || "No disponible"}<br>
+📅 Fecha: ${partido.match_date}<br>
 🏆 Liga: ${liga.stage.stage_name}<br>
 🌍 País: ${liga.country.country_name}<br>
-🔄 Estado: ${partido.match_status.is_in_progress ? "En juego" : "Detenido"}<br>
-⏱ Minuto actual: ${partido.match_status.live_time}'<br>
-🥅 Marcador HT: ${partido.scores.home_1halftime || 0} - ${partido.scores.away_1halftime || 0}
+🔄 Estado: ${partido.match_status?.is_in_progress ? "En juego":"No iniciado"}<br>
+⏱ Minuto: ${partido.match_status?.live_time ?? "N/A"}
 </div>
 
 </div>
@@ -169,7 +262,7 @@ Ver detalles
 
 });
 
-document.getElementById("matches").innerHTML=html;
+document.getElementById("contenido").innerHTML=html;
 
 }
 
@@ -177,17 +270,22 @@ function toggleDetalles(id){
 
 let box=document.getElementById("detalle-"+id);
 
-if(box.style.display==="block"){
-box.style.display="none";
-}else{
-box.style.display="block";
-}
+box.style.display=
+box.style.display==="block"
+?"none"
+:"block";
 
 }
 
-cargarPartidos();
+cargarDatos();
 
-setInterval(cargarPartidos,10000);
+setInterval(()=>{
+
+if(seccionActual==="live"){
+cargarDatos();
+}
+
+},10000);
 
 </script>
 
