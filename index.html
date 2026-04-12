@@ -11,7 +11,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial;
+font-family:Arial,sans-serif;
 }
 
 body{
@@ -50,19 +50,28 @@ font-weight:bold;
 border-left:5px solid gold;
 }
 
-/* CARDS */
+/* CARD */
 .card{
 background:linear-gradient(180deg,#183d82,#102d66);
 margin:20px;
 padding:25px;
 border-radius:25px;
-box-shadow:0 10px 25px rgba(0,0,0,.4);
+box-shadow:
+0 10px 25px rgba(0,0,0,.4),
+0 0 20px rgba(0,100,255,.15);
 animation:fade .4s ease;
+border:1px solid rgba(255,255,255,.05);
 }
 
 @keyframes fade{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
 .estado{
@@ -79,14 +88,18 @@ margin:20px 0;
 }
 
 .score{
-font-size:60px;
+font-size:70px;
 font-weight:bold;
+text-shadow:
+0 0 10px rgba(255,255,255,.2),
+0 0 20px rgba(255,255,255,.1);
+margin:15px 0;
 }
 
 .minute{
 font-size:30px;
 color:#00ff84;
-margin-top:10px;
+font-weight:bold;
 }
 
 /* BOTONES */
@@ -125,27 +138,33 @@ line-height:1.8;
 position:fixed;
 bottom:0;
 width:100%;
-background:#031126;
+background:rgba(3,17,38,.95);
+backdrop-filter:blur(10px);
 display:flex;
 justify-content:space-around;
-padding:15px 0;
+padding:10px 0;
 box-shadow:0 -5px 20px rgba(0,0,0,.5);
+border-top:1px solid rgba(255,255,255,.1);
+z-index:999;
 }
 
 .nav-btn{
 background:none;
 border:none;
-color:white;
-font-size:18px;
+color:#aaa;
+font-size:16px;
 font-weight:bold;
 display:flex;
 flex-direction:column;
 align-items:center;
-gap:5px;
+gap:4px;
+padding:8px;
+transition:.3s;
 }
 
 .nav-btn.active{
 color:#00c6ff;
+transform:scale(1.08);
 }
 </style>
 </head>
@@ -161,9 +180,20 @@ color:#00c6ff;
 
 <!-- NAVBAR -->
 <div class="navbar">
-<button class="nav-btn active" onclick="mostrarSeccion('live')">🔴<span>En Vivo</span></button>
-<button class="nav-btn" onclick="mostrarSeccion('upcoming')">📅<span>Próximos</span></button>
-<button class="nav-btn" onclick="mostrarSeccion('finished')">✅<span>Finalizados</span></button>
+<button class="nav-btn active" onclick="mostrarSeccion('live')">
+🔴
+<span>En Vivo</span>
+</button>
+
+<button class="nav-btn" onclick="mostrarSeccion('upcoming')">
+📅
+<span>Próximos</span>
+</button>
+
+<button class="nav-btn" onclick="mostrarSeccion('finished')">
+✅
+<span>Finalizados</span>
+</button>
 </div>
 
 <script>
@@ -186,11 +216,33 @@ cargarDatos();
 
 }
 
+function obtenerFecha(offset=0){
+
+const fecha=new Date();
+
+fecha.setDate(fecha.getDate()+offset);
+
+return fecha.toISOString().split("T")[0];
+
+}
+
 async function cargarDatos(){
 
-const res=await fetch(
-"https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",
-{
+let url="";
+
+if(seccionActual==="live"){
+url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football`;
+}
+
+if(seccionActual==="upcoming"){
+url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${obtenerFecha(1)}`;
+}
+
+if(seccionActual==="finished"){
+url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${obtenerFecha(-1)}`;
+}
+
+const res=await fetch(url,{
 headers:{
 "x-rapidapi-key":apiKey,
 "x-rapidapi-host":"livescore67.p.rapidapi.com"
@@ -203,35 +255,7 @@ let html="";
 
 data.forEach(liga=>{
 
-let partidosFiltrados=[];
-
-if(seccionActual==="live"){
-
-partidosFiltrados=liga.matches.filter(
-p=>p.match_status?.is_in_progress===true
-);
-
-}
-
-if(seccionActual==="finished"){
-
-partidosFiltrados=liga.matches.filter(
-p=>p.match_status?.is_in_progress===false &&
-p.match_status?.live_time==null
-);
-
-}
-
-if(seccionActual==="upcoming"){
-
-partidosFiltrados=liga.matches.filter(
-p=>!p.match_status?.is_in_progress &&
-p.scores.home==null
-);
-
-}
-
-if(partidosFiltrados.length>0){
+if(!liga.matches || liga.matches.length===0)return;
 
 html+=`
 <div class="liga">
@@ -239,7 +263,7 @@ html+=`
 </div>
 `;
 
-partidosFiltrados.forEach(partido=>{
+liga.matches.forEach(partido=>{
 
 html+=`
 <div class="card">
@@ -275,6 +299,8 @@ Ver detalles
 📅 Fecha: ${partido.match_date}<br>
 🏆 Liga: ${liga.stage.stage_name}<br>
 🌍 País: ${liga.country.country_name}<br>
+⚽ Local: ${partido.team_home[0].team_name}<br>
+⚽ Visitante: ${partido.team_away[0].team_name}
 </div>
 
 </div>
@@ -282,12 +308,10 @@ Ver detalles
 
 });
 
-}
-
 });
 
 document.getElementById("contenido").innerHTML=
-html || "<h2 style='padding:20px'>No hay partidos aquí</h2>";
+html || "<h2 style='padding:20px;'>No hay partidos disponibles</h2>";
 
 }
 
