@@ -6,20 +6,48 @@
 <title>Tena Sports</title>
 
 <style>
-body{
-background:#0d1117;
-color:white;
-font-family:Arial;
+*{
 margin:0;
 padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0a0f1c;
+color:white;
+padding-bottom:30px;
 }
 
 header{
-background:#161b22;
+background:linear-gradient(90deg,#111827,#1f2937);
 padding:20px;
 text-align:center;
 font-size:30px;
 font-weight:bold;
+box-shadow:0 4px 15px rgba(0,0,0,0.5);
+}
+
+.menu{
+display:flex;
+overflow-x:auto;
+gap:10px;
+padding:15px;
+background:#111827;
+}
+
+.menu button{
+background:#1f2937;
+border:none;
+padding:10px 18px;
+color:white;
+border-radius:20px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.menu button:hover{
+background:#2563eb;
 }
 
 .container{
@@ -27,51 +55,77 @@ padding:20px;
 }
 
 .card{
-background:#161b22;
-padding:15px;
-margin-bottom:15px;
-border-radius:12px;
+background:#111827;
+padding:20px;
+margin-bottom:20px;
+border-radius:20px;
+box-shadow:0 8px 20px rgba(0,0,0,0.4);
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.03);
 }
 
 .live{
 color:#00ff88;
 font-weight:bold;
+margin-bottom:10px;
+font-size:15px;
+}
+
+.match{
+font-size:28px;
+font-weight:bold;
+margin-bottom:15px;
 }
 
 .score{
 font-size:22px;
+color:#d1d5db;
+}
+
+.time{
 margin-top:10px;
+font-size:14px;
+color:#9ca3af;
 }
 </style>
-</head>
 
+</head>
 <body>
 
 <header>
 ⚽ TENA SPORTS
 </header>
 
+<div class="menu">
+<button>⚽ Fútbol</button>
+<button>🥊 MMA</button>
+<button>🎾 Tennis</button>
+<button>🏐 Voley</button>
+<button>🎤 Freestyle</button>
+</div>
+
 <div class="container">
 
 <div class="card">
-<div class="live">EN VIVO</div>
-<h2>Real Madrid vs Barcelona</h2>
+<div class="live">🔴 EN VIVO</div>
+<div class="match">Real Madrid vs Barcelona</div>
 <div class="score">2 - 1</div>
+<div class="time">Minuto 78</div>
 </div>
 
 <div class="card">
-<div class="live">EN VIVO</div>
-<h2>Djokovic vs Nadal</h2>
+<div class="live">🔴 EN VIVO</div>
+<div class="match">Djokovic vs Nadal</div>
 <div class="score">1 Set - 0</div>
+<div class="time">Segundo Set</div>
 </div>
 
 <div class="card">
-<div class="live">EN VIVO</div>
-<h2>UFC Main Event</h2>
+<div class="live">🔴 EN VIVO</div>
+<div class="match">McGregor vs Diaz</div>
 <div class="score">Round 2</div>
-</div>
-
-</div>
-
-</body>
-</html>
+<div class="time">UFC Main Event</div>
+</div
