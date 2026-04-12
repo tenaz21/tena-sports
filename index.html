@@ -14,18 +14,17 @@ font-family:Arial,sans-serif;
 }
 
 body{
-background:#0a0f1c;
+background:#050b18;
 color:white;
-padding-bottom:30px;
 }
 
 header{
-background:linear-gradient(90deg,#111827,#1f2937);
+background:linear-gradient(90deg,#111827,#1e293b);
 padding:20px;
 text-align:center;
-font-size:30px;
+font-size:32px;
 font-weight:bold;
-box-shadow:0 4px 15px rgba(0,0,0,0.5);
+box-shadow:0 5px 20px rgba(0,0,0,0.5);
 }
 
 .menu{
@@ -33,17 +32,18 @@ display:flex;
 overflow-x:auto;
 gap:10px;
 padding:15px;
-background:#111827;
+background:#0f172a;
 }
 
 .menu button{
-background:#1f2937;
+background:#1e293b;
 border:none;
-padding:10px 18px;
+padding:12px 18px;
 color:white;
-border-radius:20px;
+border-radius:30px;
 font-weight:bold;
 cursor:pointer;
+min-width:100px;
 }
 
 .menu button:hover{
@@ -59,36 +59,43 @@ background:#111827;
 padding:20px;
 margin-bottom:20px;
 border-radius:20px;
-box-shadow:0 8px 20px rgba(0,0,0,0.4);
-transition:0.3s;
-}
-
-.card:hover{
-transform:scale(1.03);
+box-shadow:0 8px 25px rgba(0,0,0,0.4);
 }
 
 .live{
 color:#00ff88;
 font-weight:bold;
-margin-bottom:10px;
+margin-bottom:15px;
 font-size:15px;
 }
 
-.match{
-font-size:28px;
-font-weight:bold;
+.teams{
+display:flex;
+justify-content:space-between;
+align-items:center;
 margin-bottom:15px;
+font-size:22px;
+font-weight:bold;
+}
+
+.team{
+display:flex;
+align-items:center;
+gap:10px;
 }
 
 .score{
-font-size:22px;
-color:#d1d5db;
+text-align:center;
+font-size:30px;
+font-weight:bold;
+margin:15px 0;
+color:#3b82f6;
 }
 
-.time{
-margin-top:10px;
-font-size:14px;
+.info{
+text-align:center;
 color:#9ca3af;
+font-size:14px;
 }
 </style>
 
@@ -111,21 +118,28 @@ color:#9ca3af;
 
 <div class="card">
 <div class="live">🔴 EN VIVO</div>
-<div class="match">Real Madrid vs Barcelona</div>
+<div class="teams">
+<div class="team">⚪ Real Madrid</div>
+<div class="team">🔵 Barcelona</div>
+</div>
 <div class="score">2 - 1</div>
-<div class="time">Minuto 78</div>
+<div class="info">Minuto 78</div>
 </div>
 
 <div class="card">
 <div class="live">🔴 EN VIVO</div>
-<div class="match">Djokovic vs Nadal</div>
-<div class="score">1 Set - 0</div>
-<div class="time">Segundo Set</div>
+<div class="teams">
+<div class="team">🎾 Djokovic</div>
+<div class="team">🎾 Nadal</div>
+</div>
+<div class="score">1 - 0</div>
+<div class="info">Segundo Set</div>
 </div>
 
 <div class="card">
 <div class="live">🔴 EN VIVO</div>
-<div class="match">McGregor vs Diaz</div>
-<div class="score">Round 2</div>
-<div class="time">UFC Main Event</div>
-</div
+<div class="teams">
+<div class="team">🥊 McGregor</div>
+<div class="team">🥊 Diaz</div>
+</div>
+<div class="score">Round
