@@ -4,134 +4,152 @@ const BASE_URL = "https://v3.football.api-sports.io";
 const contenido = document.getElementById("contenido");
 
 const headers = {
-    "x-apisports-key": API_KEY
+  "x-apisports-key": API_KEY
 };
 
 window.onload = () => cargarEnVivo();
 
-async function getData(url){
-    const res = await fetch(url,{headers});
+async function fetchData(endpoint) {
+  try {
+    const res = await fetch(BASE_URL + endpoint, { headers });
     const data = await res.json();
-    return data.response;
+    return data.response || [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }
 
-function crearPartidoHTML(partido, enVivo=false){
-    return `
+function tarjetaPartido(p, vivo = false) {
+  return `
     <div class="card">
-        <div class="team">
-            <img src="${partido.teams.home.logo}">
-            ${partido.teams.home.name}
-        </div>
+      <div class="team">
+        <img src="${p.teams.home.logo}">
+        ${p.teams.home.name}
+      </div>
 
-        <div class="team">
-            <img src="${partido.teams.away.logo}">
-            ${partido.teams.away.name}
-        </div>
+      <div class="team">
+        <img src="${p.teams.away.logo}">
+        ${p.teams.away.name}
+      </div>
 
-        <div class="score">
-            ${partido.goals.home ?? "-"} - ${partido.goals.away ?? "-"}
-        </div>
+      <div class="score">
+        ${p.goals.home ?? "-"} - ${p.goals.away ?? "-"}
+      </div>
 
-        <p>🏆 ${partido.league.name}</p>
+      <p>🏆 ${p.league.name}</p>
 
-        ${
-            enVivo
-            ? `<p>⏱ ${partido.fixture.status.elapsed}'</p>`
-            : `<p>📅 ${new Date(partido.fixture.date).toLocaleString()}</p>`
-        }
+      ${
+        vivo
+          ? `<p>⏱ ${p.fixture.status.elapsed}'</p>`
+          : `<p>📅 ${new Date(p.fixture.date).toLocaleString()}</p>`
+      }
     </div>
+  `;
+}
+
+/* EN VIVO */
+async function cargarEnVivo() {
+  contenido.innerHTML = "<h2>Cargando en vivo...</h2>";
+
+  let partidos = await fetchData("/fixtures?live=all");
+
+  if (!partidos.length) {
+    contenido.innerHTML = "<h2>No hay partidos en vivo ahora.</h2>";
+    return;
+  }
+
+  contenido.innerHTML = "";
+
+  partidos.forEach(p => {
+    contenido.innerHTML += tarjetaPartido(p, true);
+  });
+}
+
+/* PROXIMOS */
+async function cargarProximos() {
+  contenido.innerHTML = "<h2>Cargando próximos...</h2>";
+
+  let partidos = await fetchData("/fixtures?next=20");
+
+  if (!partidos.length) {
+    contenido.innerHTML = "<h2>No hay próximos partidos.</h2>";
+    return;
+  }
+
+  contenido.innerHTML = "";
+
+  partidos.forEach(p => {
+    contenido.innerHTML += tarjetaPartido(p);
+  });
+}
+
+/* FINALIZADOS */
+async function cargarFinalizados() {
+  contenido.innerHTML = "<h2>Cargando finalizados...</h2>";
+
+  let partidos = await fetchData("/fixtures?last=20");
+
+  if (!partidos.length) {
+    contenido.innerHTML = "<h2>No hay partidos finalizados.</h2>";
+    return;
+  }
+
+  contenido.innerHTML = "";
+
+  partidos.forEach(p => {
+    contenido.innerHTML += tarjetaPartido(p);
+  });
+}
+
+/* PAISES */
+async function cargarPaises() {
+  contenido.innerHTML = "<h2>Cargando países...</h2>";
+
+  let paises = await fetchData("/countries");
+
+  contenido.innerHTML = "";
+
+  paises.forEach(p => {
+    contenido.innerHTML += `
+      <div class="card" onclick="verLigas('${p.name}')">
+        🌍 ${p.name}
+      </div>
     `;
+  });
 }
 
-async function cargarEnVivo(){
-    contenido.innerHTML="";
+/* LIGAS */
+async function verLigas(pais) {
+  contenido.innerHTML = "<h2>Cargando ligas...</h2>";
 
-    let partidos = await getData(
-        `${BASE_URL}/fixtures?live=all`
-    );
+  let ligas = await fetchData(`/leagues?country=${pais}`);
 
-    partidos.forEach(p=>{
-        contenido.innerHTML += crearPartidoHTML(p,true);
-    });
+  contenido.innerHTML = "";
+
+  ligas.forEach(l => {
+    contenido.innerHTML += `
+      <div class="card" onclick="verPartidosLiga(${l.league.id})">
+        🏆 ${l.league.name}
+      </div>
+    `;
+  });
 }
 
-async function cargarProximos(){
-    contenido.innerHTML="";
+/* PARTIDOS DE LIGA */
+async function verPartidosLiga(idLiga) {
+  contenido.innerHTML = "<h2>Cargando partidos...</h2>";
 
-    let hoy = new Date();
-    let mañana = new Date();
-    mañana.setDate(hoy.getDate()+1);
+  let partidos = await fetchData(`/fixtures?league=${idLiga}&next=10`);
 
-    let fecha = mañana.toISOString().split("T")[0];
+  if (!partidos.length) {
+    contenido.innerHTML = "<h2>No hay partidos disponibles.</h2>";
+    return;
+  }
 
-    let partidos = await getData(
-        `${BASE_URL}/fixtures?date=${fecha}`
-    );
+  contenido.innerHTML = "";
 
-    partidos.forEach(p=>{
-        contenido.innerHTML += crearPartidoHTML(p);
-    });
-}
-
-async function cargarFinalizados(){
-    contenido.innerHTML="";
-
-    let ayer = new Date();
-    ayer.setDate(ayer.getDate()-1);
-
-    let fecha = ayer.toISOString().split("T")[0];
-
-    let partidos = await getData(
-        `${BASE_URL}/fixtures?date=${fecha}&status=FT`
-    );
-
-    partidos.forEach(p=>{
-        contenido.innerHTML += crearPartidoHTML(p);
-    });
-}
-
-async function cargarPaises(){
-    contenido.innerHTML="";
-
-    let paises = await getData(
-        `${BASE_URL}/countries`
-    );
-
-    paises.forEach(pais=>{
-        contenido.innerHTML += `
-        <div class="card" onclick="verLigas('${pais.name}')">
-            🌍 ${pais.name}
-        </div>
-        `;
-    });
-}
-
-async function verLigas(pais){
-    contenido.innerHTML="";
-
-    let ligas = await getData(
-        `${BASE_URL}/leagues?country=${pais}`
-    );
-
-    ligas.forEach(liga=>{
-        contenido.innerHTML += `
-        <div class="card" onclick="verPartidosLiga(${liga.league.id})">
-            🏆 ${liga.league.name}
-        </div>
-        `;
-    });
-}
-
-async function verPartidosLiga(idLiga){
-    contenido.innerHTML="";
-
-    let hoy = new Date().toISOString().split("T")[0];
-
-    let partidos = await getData(
-        `${BASE_URL}/fixtures?league=${idLiga}&date=${hoy}`
-    );
-
-    partidos.forEach(p=>{
-        contenido.innerHTML += crearPartidoHTML(p);
-    });
+  partidos.forEach(p => {
+    contenido.innerHTML += tarjetaPartido(p);
+  });
 }
