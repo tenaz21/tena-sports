@@ -7,12 +7,17 @@
 <title>TENA SPORTS</title>
 
 <style>
-body{
+*{
+box-sizing:border-box;
 margin:0;
-background:#021427;
+padding:0;
 font-family:Arial;
+}
+
+body{
+background:#021427;
 color:white;
-padding-bottom:110px;
+padding-bottom:120px;
 }
 
 .header{
@@ -21,6 +26,7 @@ padding:25px;
 font-size:32px;
 font-weight:bold;
 text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.4);
 }
 
 .banner{
@@ -30,76 +36,90 @@ font-size:24px;
 font-weight:bold;
 }
 
+.refreshBtn{
+margin:15px;
+width:calc(100% - 30px);
+padding:15px;
+border:none;
+border-radius:15px;
+background:#00aa55;
+color:white;
+font-size:18px;
+font-weight:bold;
+}
+
 .controls{
 padding:15px;
-background:#041a33;
 display:flex;
 gap:10px;
 }
 
 input{
 flex:1;
-padding:12px;
+padding:15px;
 border:none;
-border-radius:10px;
+border-radius:15px;
 font-size:16px;
 }
 
 .buscar{
-padding:12px 20px;
-background:#00aaff;
+padding:15px 25px;
 border:none;
-border-radius:10px;
-font-weight:bold;
+border-radius:15px;
+background:#00aaff;
 color:white;
+font-weight:bold;
+font-size:16px;
 }
 
 .liga{
 background:#16325f;
 padding:15px;
-font-size:22px;
+font-size:24px;
 font-weight:bold;
+margin-top:10px;
 }
 
 .card{
 background:#1d3f80;
 margin:15px;
-padding:20px;
+padding:25px;
 border-radius:20px;
-box-shadow:0 0 20px #00000050;
+box-shadow:0 0 20px rgba(0,0,0,0.4);
+transition:0.3s;
 }
 
 .estado{
-font-size:26px;
+font-size:28px;
 font-weight:bold;
-color:#00ff99;
-margin-bottom:15px;
+margin-bottom:20px;
 }
 
 .score{
-font-size:50px;
+font-size:60px;
 font-weight:bold;
 margin:20px 0;
 }
 
-.detalles{
-margin-top:15px;
-padding:15px;
-background:#00152f;
-border-radius:15px;
-display:none;
-}
-
-button{
+button.detBtn{
 width:100%;
 padding:15px;
-background:linear-gradient(90deg,#00c6ff,#0072ff);
+margin-top:15px;
 border:none;
 border-radius:15px;
-font-size:18px;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+font-size:20px;
 font-weight:bold;
 color:white;
+}
+
+.detalles{
+display:none;
 margin-top:15px;
+padding:20px;
+background:#00152f;
+border-radius:15px;
+line-height:1.8;
 }
 
 .bottomnav{
@@ -108,6 +128,7 @@ bottom:0;
 width:100%;
 display:flex;
 background:#00152d;
+box-shadow:0 -5px 20px rgba(0,0,0,0.5);
 }
 
 .navbtn{
@@ -117,6 +138,7 @@ text-align:center;
 font-size:18px;
 font-weight:bold;
 cursor:pointer;
+transition:0.3s;
 }
 
 .active{
@@ -131,6 +153,10 @@ color:#00bfff;
 <div class="banner" id="tituloBanner">
 🔥 HOY: Resultados deportivos EN VIVO
 </div>
+
+<button class="refreshBtn" onclick="location.reload()">
+🔄 Actualizar partidos
+</button>
 
 <div class="controls">
 <input type="date" id="fechaInput">
@@ -160,14 +186,34 @@ d.setDate(d.getDate()+offset);
 return d.toISOString().split("T")[0];
 }
 
+function formatearFecha(fechaRaw){
+
+if(!fechaRaw)return "";
+
+let fecha=new Date(fechaRaw);
+
+return fecha.toLocaleString("es-ES",{
+day:"2-digit",
+month:"2-digit",
+year:"numeric",
+hour:"2-digit",
+minute:"2-digit"
+});
+
+}
+
 async function obtenerPartidos(fecha=null,enVivo=false){
 
 let url="";
 
 if(enVivo){
+
 url="https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football";
+
 }else{
+
 url=`https://livescore67.p.rapidapi.com/api/livescore/v1/match/list?sport_id=football&date=${fecha}`;
+
 }
 
 const res=await fetch(url,{
@@ -185,30 +231,36 @@ renderizar(data);
 }
 
 async function verEnVivo(btn){
+
 activar(btn);
 
 document.getElementById("tituloBanner").innerHTML=
 "🔥 HOY: Resultados deportivos EN VIVO";
 
 obtenerPartidos(null,true);
+
 }
 
 async function verProximos(btn){
+
 activar(btn);
 
 document.getElementById("tituloBanner").innerHTML=
 "📅 Próximos partidos";
 
 obtenerPartidos(formatoFecha(1));
+
 }
 
 async function verFinalizados(btn){
+
 activar(btn);
 
 document.getElementById("tituloBanner").innerHTML=
 "✅ Partidos Finalizados";
 
 obtenerPartidos(formatoFecha(-1));
+
 }
 
 async function buscarFecha(){
@@ -221,13 +273,18 @@ document.getElementById("tituloBanner").innerHTML=
 "📆 Partidos del "+fecha;
 
 obtenerPartidos(fecha);
+
 }
 
 function toggleDetalles(id){
+
 let box=document.getElementById(id);
 
 box.style.display=
-box.style.display==="block"?"none":"block";
+box.style.display==="block"
+?"none"
+:"block";
+
 }
 
 function renderizar(data){
@@ -235,8 +292,12 @@ function renderizar(data){
 let html="";
 
 if(!data || data.length===0){
-document.getElementById("matches").innerHTML="<h2 style='padding:20px'>No hay partidos disponibles</h2>";
+
+document.getElementById("matches").innerHTML=
+"<h2 style='padding:20px'>No hay partidos aquí</h2>";
+
 return;
+
 }
 
 let contador=0;
@@ -245,43 +306,87 @@ data.forEach(liga=>{
 
 if(!liga.matches || liga.matches.length===0)return;
 
-html+=`<div class="liga">🏆 ${liga.stage.stage_name}</div>`;
+html+=`
+<div class="liga">
+🏆 ${liga.stage.stage_name} (${liga.matches.length})
+</div>
+`;
 
 liga.matches.forEach(partido=>{
 
 contador++;
 
-html+=`
-<div class="card">
+let home=partido.team_home[0].team_name;
+let away=partido.team_away[0].team_name;
 
-<div class="estado">
-${partido.status || "PARTIDO"}
+let homeScore=partido.scores?.home ?? "-";
+let awayScore=partido.scores?.away ?? "-";
+
+let estado="📅 PRÓXIMO";
+
+if(partido.match_status?.live==="1"){
+
+estado="🔴 EN VIVO";
+
+}
+
+if(partido.status==="Finished"){
+
+estado="✅ FINALIZADO";
+
+}
+
+let glow=partido.match_status?.live==="1"
+?"box-shadow:0 0 25px #00ff88;"
+:"";
+
+html+=`
+
+<div class="card" style="${glow}">
+
+<div class="estado">${estado}</div>
+
+<div style="
+font-size:24px;
+${homeScore>awayScore?"color:#00ff99;font-weight:bold;":""}
+">
+${home}
 </div>
 
-<div style="font-size:20px;">
-${partido.team_home[0].team_name}<br><br>
-${partido.team_away[0].team_name}
+<br>
+
+<div style="
+font-size:24px;
+${awayScore>homeScore?"color:#00ff99;font-weight:bold;":""}
+">
+${away}
 </div>
 
 <div class="score">
-${partido.scores?.home ?? "-"} - ${partido.scores?.away ?? "-"}
+${homeScore} - ${awayScore}
 </div>
 
-<div>
-⏱ ${partido.match_status?.live_time || partido.match_date || ""}
+<div style="font-size:22px;">
+⏱ ${
+partido.match_status?.live_time
+|| formatearFecha(partido.match_date)
+}
 </div>
 
-<button onclick="toggleDetalles('det${contador}')">
+<button class="detBtn"
+onclick="toggleDetalles('det${contador}')">
 Ver detalles
 </button>
 
 <div class="detalles" id="det${contador}">
-📅 Fecha: ${partido.match_date || "No disponible"}<br><br>
-🏆 Liga: ${liga.stage.stage_name}<br><br>
+📅 Fecha: ${formatearFecha(partido.match_date)}<br>
+🏆 Liga: ${liga.stage.stage_name}<br>
 🌍 País: ${liga.country.country_name}<br>
+📌 Estado: ${estado}
 </div>
 
 </div>
+
 `;
 
 });
@@ -289,6 +394,7 @@ Ver detalles
 });
 
 document.getElementById("matches").innerHTML=html;
+
 }
 
 verEnVivo();
