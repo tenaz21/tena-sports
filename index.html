@@ -37,7 +37,19 @@ background:#081a3d;
 padding:20px;
 margin-bottom:20px;
 border-radius:20px;
-box-shadow:0 0 10px rgba(0,0,0,.4);
+box-shadow:0 0 15px rgba(0,0,0,.5);
+animation:fadeIn .5s ease;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
 .live{
@@ -45,6 +57,13 @@ color:#00ff88;
 font-size:22px;
 font-weight:bold;
 margin-bottom:15px;
+}
+
+.league{
+color:#ffc107;
+font-size:18px;
+margin-bottom:15px;
+font-weight:bold;
 }
 
 .team{
@@ -95,6 +114,8 @@ Cargando partidos...
 
 const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
+function cargarPartidos(){
+
 fetch("https://livescore67.p.rapidapi.com/api/livescore/v1/match/live?sport_id=football",{
 method:"GET",
 headers:{
@@ -104,8 +125,6 @@ headers:{
 })
 .then(response=>response.json())
 .then(data=>{
-
-console.log(data);
 
 let html="";
 
@@ -119,6 +138,10 @@ html += `
 <div class="card">
 
 <div class="live">🔴 EN VIVO</div>
+
+<div class="league">
+🏆 ${liga.country.country_name} - ${liga.stage.stage_name}
+</div>
 
 <div class="team">
 <img src="${partido.team_home[0].team_image_path}" class="logo">
@@ -147,7 +170,7 @@ ${partido.team_away[0].team_name}
 
 }else{
 
-html="<h2>No hay partidos en vivo</h2>";
+html="<h2>No hay partidos en vivo actualmente</h2>";
 
 }
 
@@ -156,12 +179,16 @@ document.getElementById("matches").innerHTML=html;
 })
 .catch(error=>{
 
-console.log(error);
-
 document.getElementById("matches").innerHTML=
 "<h2>Error cargando partidos</h2>";
 
 });
+
+}
+
+cargarPartidos();
+
+setInterval(cargarPartidos,30000);
 
 </script>
 
