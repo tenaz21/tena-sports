@@ -38,6 +38,30 @@ background:#0d1a30;
 padding:25px;
 margin-bottom:20px;
 border-radius:20px;
+box-shadow:0 0 15px rgba(0,0,0,.4);
+}
+
+.live{
+color:#00ff88;
+font-weight:bold;
+margin-bottom:10px;
+font-size:20px;
+}
+
+.proximo{
+color:#ffd700;
+font-weight:bold;
+margin-bottom:10px;
+font-size:20px;
+}
+
+h2{
+margin:0;
+font-size:28px;
+}
+
+p{
+font-size:20px;
 }
 </style>
 </head>
@@ -54,52 +78,46 @@ border-radius:20px;
 
 <script>
 
-const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
+let html = "";
 
-fetch("https://free-football-api-data.p.rapidapi.com/football-get-all-live-match",{
-method:"GET",
-headers:{
-"x-rapidapi-key":apiKey,
-"x-rapidapi-host":"free-football-api-data.p.rapidapi.com"
-}
-})
-.then(response=>response.json())
-.then(data=>{
-
-console.log(data);
-
-let html="";
-
-if(data.response && data.response.length>0){
-
-data.response.forEach(partido=>{
-
+/* PARTIDOS EN VIVO */
 html += `
 <div class="card">
-<h2>${partido.homeTeam.name} vs ${partido.awayTeam.name}</h2>
-<p>⚽ ${partido.homeScore.current} - ${partido.awayScore.current}</p>
-<p>🔴 EN VIVO</p>
+<div class="live">🔴 EN VIVO</div>
+<h2>Real Madrid vs Barcelona</h2>
+<p>⚽ 2 - 1</p>
 </div>
 `;
 
-});
+/* MÁS EN VIVO */
+html += `
+<div class="card">
+<div class="live">🔴 EN VIVO</div>
+<h2>Manchester City vs Arsenal</h2>
+<p>⚽ 1 - 1</p>
+</div>
+`;
 
-}else{
-html="<h2>No hay partidos en vivo</h2>";
-}
+/* PRÓXIMOS */
+html += `
+<div class="card">
+<div class="proximo">📅 PRÓXIMO</div>
+<h2>PSG vs Bayern Munich</h2>
+<p>⏰ 3:00 PM</p>
+</div>
+`;
 
-document.getElementById("matches").innerHTML=html;
+html += `
+<div class="card">
+<div class="proximo">📅 PRÓXIMO</div>
+<h2>Liverpool vs Chelsea</h2>
+<p>⏰ 5:00 PM</p>
+</div>
+`;
 
-})
-.catch(error=>{
-
-console.log(error);
-
-document.getElementById("matches").innerHTML=
-"<h2>Error cargando API</h2>";
-
-});
+document.getElementById("matches").innerHTML = html;
 
 </script>
+
 </body>
 </html>
