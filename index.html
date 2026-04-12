@@ -1,9 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Prueba</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TENA SPORTS</title>
+
+<style>
+body{
+margin:0;
+background:#020b1c;
+font-family:Arial;
+color:white;
+}
+
+header{
+background:linear-gradient(90deg,#13294d,#1f3d70);
+padding:25px;
+text-align:center;
+font-size:42px;
+font-weight:bold;
+}
+
+.banner{
+background:red;
+padding:15px;
+text-align:center;
+font-weight:bold;
+font-size:22px;
+}
+
+#matches{
+padding:20px;
+}
+
+.card{
+background:#0d1a30;
+padding:25px;
+margin-bottom:20px;
+border-radius:20px;
+box-shadow:0 0 20px rgba(0,0,0,.5);
+}
+
+.live{
+color:#00ff88;
+font-weight:bold;
+font-size:22px;
+margin-bottom:15px;
+}
+
+.match{
+display:flex;
+justify-content:space-between;
+font-size:30px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.score{
+text-align:center;
+font-size:45px;
+color:#2f7cff;
+font-weight:bold;
+}
+</style>
 </head>
-<body style="background:black;color:white;">
-<h1>FUNCIONA MI WEB</h1>
+
+<body>
+
+<header>⚽ TENA SPORTS</header>
+
+<div class="banner">
+🔥 HOY: Resultados deportivos EN VIVO
+</div>
+
+<div id="matches">
+Cargando partidos...
+</div>
+
+<script>
+const apiKey = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
+
+fetch("https://livescore6.p.rapidapi.com/matches/v2/list-live?Category=soccer",{
+method:"GET",
+headers:{
+"x-rapidapi-key":apiKey,
+"x-rapidapi-host":"livescore6.p.rapidapi.com"
+}
+})
+.then(res=>res.json())
+.then(data=>{
+
+let partidos=data.Stages[0].Events;
+
+let html="";
+
+partidos.slice(0,5).forEach(partido=>{
+
+html+=`
+<div class="card">
+
+<div class="live">🔴 EN VIVO</div>
+
+<div class="match">
+<span>${partido.T1[0].Nm}</span>
+<span>${partido.T2[0].Nm}</span>
+</div>
+
+<div class="score">
+${partido.Tr1} - ${partido.Tr2}
+</div>
+
+</div>
+`;
+});
+
+document.getElementById("matches").innerHTML=html;
+
+})
+.catch(error=>{
+document.getElementById("matches").innerHTML="Error cargando partidos";
+console.log(error);
+});
+</script>
+
 </body>
 </html>
