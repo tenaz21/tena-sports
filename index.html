@@ -4,84 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Partidos de Fútbol</title>
-
-<style>
-body{
-    background:#0f0f0f;
-    color:white;
-    font-family:Arial;
-    padding:20px;
-}
-
-h1{
-    text-align:center;
-}
-
-#partidos{
-    display:grid;
-    gap:15px;
-}
-
-.partido{
-    background:#1c1c1c;
-    padding:15px;
-    border-radius:12px;
-}
-
-.equipos{
-    display:flex;
-    justify-content:space-between;
-    font-size:18px;
-    font-weight:bold;
-}
-
-.marcador{
-    text-align:center;
-    font-size:24px;
-    margin-top:10px;
-    color:#00ff88;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <h1>⚽ Partidos en Vivo</h1>
 
-<div id="partidos"></div>
+<div id="contenido"></div>
 
-<script>
-fetch("https://football-api-7.p.rapidapi.com/api/matches/live", {
-	method: "GET",
-	headers: {
-		"X-RapidAPI-Key": "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140",
-		"X-RapidAPI-Host": "football-api-7.p.rapidapi.com"
-	}
-})
-.then(res => res.json())
-.then(data => {
-
-    const partidos = document.getElementById("partidos");
-
-    data.events.forEach(match => {
-
-        partidos.innerHTML += `
-            <div class="partido">
-                <div class="equipos">
-                    <span>${match.homeTeam.name}</span>
-                    <span>vs</span>
-                    <span>${match.awayTeam.name}</span>
-                </div>
-
-                <div class="marcador">
-                    ${match.homeScore.current} - ${match.awayScore.current}
-                </div>
-            </div>
-        `;
-    });
-
-})
-.catch(err => console.log(err));
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
