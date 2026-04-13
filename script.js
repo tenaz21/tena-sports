@@ -103,11 +103,11 @@ async function loadHighlights() {
 
         const data = await response.json();
 
-        console.log("VIDEOS:", data);
+        console.log(data);
 
         contenido.innerHTML = "";
 
-        data.response.forEach(video => {
+        data.forEach(video => {
             contenido.innerHTML += `
                 <div class="card">
                     <h2>${video.title}</h2>
@@ -116,7 +116,7 @@ async function loadHighlights() {
 
                     <br><br>
 
-                    <a href="${video.matchviewUrl}" target="_blank">
+                    <a href="${video.embed}" target="_blank">
                         ▶ Ver Highlight
                     </a>
                 </div>
