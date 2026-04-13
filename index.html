@@ -2,29 +2,77 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ligas de Fútbol</title>
 
-<title>TENA SPORTS</title>
+<style>
+body{
+    background:#111;
+    color:white;
+    font-family:Arial;
+    padding:20px;
+}
 
-<link rel="stylesheet" href="style.css">
+h1{
+    text-align:center;
+}
+
+#ligas{
+    display:grid;
+    gap:15px;
+}
+
+.liga{
+    background:#1c1c1c;
+    padding:15px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.liga img{
+    width:50px;
+    height:50px;
+}
+</style>
+
 </head>
 <body>
 
-<div class="header">⚽ TENA SPORTS</div>
+<h1>⚽ Ligas de Fútbol</h1>
 
-<div class="banner">🔥 Resultados deportivos EN VIVO</div>
+<div id="ligas"></div>
 
-<div class="nav-top">
-<button onclick="cargarEnVivo()">🔴 En Vivo</button>
-<button onclick="cargarProximos()">📅 Próximos</button>
-<button onclick="cargarFinalizados()">✅ Finalizados</button>
-<button onclick="cargarPaises()">🌎 Países</button>
-<button onclick="loadHighlights()">🎥 Highlights</button>
-</div>
+<script>
+fetch("https://football-api-7.p.rapidapi.com/api/competitions", {
+	method: "GET",
+	headers: {
+		"X-RapidAPI-Key": "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140",
+		"X-RapidAPI-Host": "football-api-7.p.rapidapi.com"
+	}
+})
+.then(response => response.json())
+.then(data => {
 
-<div id="contenido"></div>
+    const contenedor = document.getElementById("ligas");
 
-<script src="script.js"></script>
+    data.competitions.slice(0,10).forEach(liga => {
+
+        contenedor.innerHTML += `
+            <div class="liga">
+                <img src="${liga.logo}" alt="">
+                <div>
+                    <h3>${liga.name}</h3>
+                    <p>ID: ${liga.id}</p>
+                </div>
+            </div>
+        `;
+    });
+
+})
+.catch(err => console.error(err));
+</script>
 
 </body>
 </html>
