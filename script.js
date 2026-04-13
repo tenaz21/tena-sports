@@ -4,13 +4,11 @@ async function cargarEnVivo(){
 
 const contenido = document.getElementById("contenido");
 
-try{
-
 const response = await fetch(
-"https://football-api-7.p.rapidapi.com/api/v3/matches/live",
+"https://football-api-7.p.rapidapi.com/api/v3/search?lang=en",
 {
 headers:{
-"X-RapidAPI-Key": API_KEY,
+"X-RapidAPI-Key":API_KEY,
 "X-RapidAPI-Host":"football-api-7.p.rapidapi.com"
 }
 });
@@ -22,12 +20,6 @@ contenido.innerHTML = `
 ${JSON.stringify(data,null,2)}
 </pre>
 `;
-
-}catch(error){
-
-contenido.innerHTML=`<h2>${error}</h2>`;
-
-}
 
 }
 
