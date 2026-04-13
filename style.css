@@ -5,53 +5,78 @@
 }
 
 body{
-    background:linear-gradient(180deg,#0d0d0d,#1a1a1a);
-    color:white;
     font-family:Arial, sans-serif;
+    background:linear-gradient(135deg,#0d1117,#161b22);
+    color:white;
+    min-height:100vh;
     padding:20px;
 }
 
-h1{
-    text-align:center;
-    margin-bottom:25px;
-    font-size:36px;
-    color:#00ff88;
-    text-shadow:0 0 15px #00ff88;
+/* CONTENEDOR GENERAL */
+.container{
+    max-width:900px;
+    margin:auto;
 }
 
+/* TITULO */
+h1{
+    text-align:center;
+    font-size:38px;
+    margin-bottom:30px;
+    color:#00ff88;
+    text-shadow:0 0 10px rgba(0,255,136,.5);
+}
+
+/* MENSAJE SIN PARTIDOS */
+.empty{
+    background:#161b22;
+    border:1px solid #30363d;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+    font-size:24px;
+    box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+
+/* CONTENEDOR PARTIDOS */
 #contenido{
-    display:grid;
+    display:flex;
+    flex-direction:column;
     gap:20px;
 }
 
+/* TARJETAS */
 .card{
-    background:#1e1e1e;
-    border:1px solid #333;
-    border-radius:15px;
+    background:#161b22;
+    border:1px solid #30363d;
+    border-radius:18px;
     padding:20px;
-    box-shadow:0 0 15px rgba(0,255,136,0.15);
-    transition:0.3s;
+    box-shadow:0 8px 20px rgba(0,0,0,.35);
+    transition:.3s;
 }
 
 .card:hover{
-    transform:scale(1.02);
-    box-shadow:0 0 20px rgba(0,255,136,0.4);
+    transform:translateY(-3px);
+    border-color:#00ff88;
 }
 
+/* EQUIPOS */
 .card h2{
-    margin-bottom:15px;
     font-size:22px;
+    margin-bottom:10px;
 }
 
+/* SCORE */
 .score{
-    font-size:30px;
+    font-size:36px;
     font-weight:bold;
     color:#00ff88;
-    text-align:center;
     margin:15px 0;
+    text-align:center;
 }
 
-p{
-    text-align:center;
-    opacity:0.8;
+/* TEXTO */
+.card p{
+    opacity:.8;
+    margin-top:5px;
 }
