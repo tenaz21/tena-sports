@@ -87,19 +87,17 @@ async function cargarPaises() {
         `).join("");
 }
 
-/* NUEVA FUNCION HIGHLIGHTS */
-
 async function loadHighlights() {
     const contenido = document.getElementById("contenido");
 
     contenido.innerHTML = "<h2>Cargando highlights...</h2>";
 
     try {
-        const response = await fetch("https://free-football-soccer-videos1.p.rapidapi.com/v1/", {
+        const response = await fetch("https://free-football-soccer-videos.p.rapidapi.com/", {
             method: "GET",
             headers: {
                 "x-rapidapi-key": API_KEY,
-                "x-rapidapi-host": "free-football-soccer-videos1.p.rapidapi.com"
+                "x-rapidapi-host": "free-football-soccer-videos.p.rapidapi.com"
             }
         });
 
