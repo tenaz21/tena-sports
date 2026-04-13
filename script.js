@@ -4,8 +4,12 @@ async function cargarEnVivo(){
 
 const contenido = document.getElementById("contenido");
 
+contenido.innerHTML = "Cargando partidos...";
+
+try{
+
 const response = await fetch(
-"https://football-api-7.p.rapidapi.com/api/v3/search?lang=en",
+"https://football-api-7.p.rapidapi.com/api/v3/events/live",
 {
 headers:{
 "X-RapidAPI-Key":API_KEY,
@@ -15,11 +19,38 @@ headers:{
 
 const data = await response.json();
 
-contenido.innerHTML = `
-<pre style="color:white;">
-${JSON.stringify(data,null,2)}
-</pre>
+console.log(data);
+
+contenido.innerHTML="";
+
+if(!data.events || data.events.length===0){
+contenido.innerHTML="<h2>No hay partidos en vivo.</h2>";
+return;
+}
+
+data.events.forEach(match=>{
+
+contenido.innerHTML += `
+<div class="card">
+<h2>${match.homeTeam.name} vs ${match.awayTeam.name}</h2>
+
+<div class="score">
+${match.homeScore.current} - ${match.awayScore.current}
+</div>
+
+<p>${match.status.description}</p>
+</div>
 `;
+
+});
+
+}catch(error){
+
+contenido.innerHTML="<h2>Error cargando API.</h2>";
+
+console.log(error);
+
+}
 
 }
 
