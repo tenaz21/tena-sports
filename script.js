@@ -103,22 +103,20 @@ async function loadHighlights() {
 
         const data = await response.json();
 
-        console.log(data);
-
         contenido.innerHTML = "";
 
-        data.forEach(video => {
+        data.slice(0,10).forEach(match => {
+
             contenido.innerHTML += `
                 <div class="card">
-                    <h2>${video.title}</h2>
+                    <h2>${match.title}</h2>
 
-                    <img src="${video.thumbnail}" width="100%">
+                    <img src="${match.thumbnail}" width="100%">
 
                     <br><br>
 
-                    <a href="${video.embed}" target="_blank">
-                        ▶ Ver Highlight
-                    </a>
+                    ${match.videos[0].embed}
+
                 </div>
             `;
         });
@@ -130,5 +128,4 @@ async function loadHighlights() {
             "<h2>Error cargando highlights.</h2>";
     }
 }
-
 window.onload = cargarEnVivo;
