@@ -1,70 +1,76 @@
 body{
-margin:0;
-background:#021427;
-font-family:Arial;
-color:white;
+    margin:0;
+    background:#00152e;
+    font-family:Arial;
+    color:white;
 }
 
 .header{
-background:linear-gradient(90deg,#0057ff,#3daeff);
-padding:25px;
-font-size:30px;
-font-weight:bold;
-text-align:center;
+    background:linear-gradient(90deg,#005eff,#46b3ff);
+    padding:30px;
+    text-align:center;
+    font-size:40px;
+    font-weight:bold;
 }
 
 .banner{
-background:red;
-padding:18px;
-font-size:22px;
-font-weight:bold;
+    background:red;
+    padding:20px;
+    text-align:center;
+    font-size:30px;
+    font-weight:bold;
 }
 
 .nav-top{
-display:flex;
-overflow-x:auto;
-gap:10px;
-padding:15px;
-background:#02213d;
+    display:flex;
+    overflow-x:auto;
+    gap:15px;
+    padding:20px;
+    background:#002847;
 }
 
 .nav-top button{
-background:#3051a3;
-border:none;
-padding:12px 18px;
-color:white;
-border-radius:10px;
-font-weight:bold;
+    min-width:150px;
+    padding:20px;
+    border:none;
+    border-radius:15px;
+    background:#3756b3;
+    color:white;
+    font-size:20px;
+    font-weight:bold;
 }
 
 #contenido{
-padding:20px;
+    padding:20px;
 }
 
 .card{
-background:#3051a3;
-padding:20px;
-margin-bottom:15px;
-border-radius:20px;
-font-size:20px;
-font-weight:bold;
-cursor:pointer;
+    background:#3756b3;
+    padding:25px;
+    border-radius:20px;
+    margin-bottom:25px;
 }
 
-.team{
-display:flex;
-align-items:center;
-gap:10px;
-margin:10px 0;
+.card h2{
+    font-size:28px;
 }
 
-.team img{
-width:35px;
-height:35px;
+.card img{
+    width:100%;
+    border-radius:15px;
+    margin-top:15px;
+}
+
+.card iframe{
+    width:100%;
+    height:220px;
+    border:none;
+    border-radius:15px;
+    margin-top:15px;
 }
 
 .score{
-font-size:45px;
-color:#00ff88;
-font-weight:bold;
+    font-size:40px;
+    font-weight:bold;
+    color:yellow;
 }
