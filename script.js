@@ -87,4 +87,50 @@ async function cargarPaises() {
         `).join("");
 }
 
+/* NUEVA FUNCION HIGHLIGHTS */
+
+async function loadHighlights() {
+    const contenido = document.getElementById("contenido");
+
+    contenido.innerHTML = "<h2>Cargando highlights...</h2>";
+
+    try {
+        const response = await fetch("https://free-football-soccer-videos1.p.rapidapi.com/v1/", {
+            method: "GET",
+            headers: {
+                "x-rapidapi-key": API_KEY,
+                "x-rapidapi-host": "free-football-soccer-videos1.p.rapidapi.com"
+            }
+        });
+
+        const data = await response.json();
+
+        console.log("VIDEOS:", data);
+
+        contenido.innerHTML = "";
+
+        data.response.forEach(video => {
+            contenido.innerHTML += `
+                <div class="card">
+                    <h2>${video.title}</h2>
+
+                    <img src="${video.thumbnail}" width="100%">
+
+                    <br><br>
+
+                    <a href="${video.matchviewUrl}" target="_blank">
+                        ▶ Ver Highlight
+                    </a>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        contenido.innerHTML =
+            "<h2>Error cargando highlights.</h2>";
+    }
+}
+
 window.onload = cargarEnVivo;
