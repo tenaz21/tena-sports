@@ -1,19 +1,19 @@
 const API_KEY = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-async function cargarEnVivo() {
+async function cargarEnVivo(){
 
 const contenido = document.getElementById("contenido");
 
-contenido.innerHTML = "Cargando...";
+contenido.innerHTML = "Cargando partidos...";
 
-try {
+try{
 
 const response = await fetch(
-"https://football-api-7.p.rapidapi.com/api/matches/live",
+"https://football-api-7.p.rapidapi.com/api/matches/top",
 {
 headers:{
 "X-RapidAPI-Key": API_KEY,
-"X-RapidAPI-Host": "football-api-7.p.rapidapi.com"
+"X-RapidAPI-Host":"football-api-7.p.rapidapi.com"
 }
 });
 
@@ -21,51 +21,40 @@ const data = await response.json();
 
 console.log(data);
 
-contenido.innerHTML = "";
+contenido.innerHTML="";
 
+if(!data.events || data.events.length===0){
 
-/* VALIDACION SEGURA */
-if (!data.events || data.events.length === 0) {
-
-contenido.innerHTML = `
-<div class="empty">
-🚫 No hay partidos en vivo
-</div>
-`;
-
+contenido.innerHTML="<h2>No hay partidos disponibles.</h2>";
 return;
 
 }
 
-
-/* MOSTRAR PARTIDOS */
-data.events.forEach(match => {
+data.events.forEach(match=>{
 
 contenido.innerHTML += `
 <div class="card">
 
-<h2>${match.homeTeam.name} vs ${match.awayTeam.name}</h2>
+<h2>${match.homeTeam.name}</h2>
 
 <div class="score">
-${match.homeScore.current} - ${match.awayScore.current}
+VS
 </div>
 
-<p>${match.status.description}</p>
+<h2>${match.awayTeam.name}</h2>
+
+<p>${match.tournament.name}</p>
 
 </div>
 `;
 
 });
 
-} catch(error) {
+}catch(error){
 
-contenido.innerHTML = `
-<div class="empty">
-❌ Error cargando API
-</div>
-`;
+contenido.innerHTML="<h2>Error cargando API.</h2>";
 
-console.log("ERROR DETALLADO:", error);
+console.log(error);
 
 }
 
