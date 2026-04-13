@@ -50,13 +50,14 @@ VS
 
 });
 
-}catch(error){
+catch(error){
 
-contenido.innerHTML="<h2>Error cargando API.</h2>";
+console.log("ERROR COMPLETO:", error);
 
-console.log(error);
-
-}
+contenido.innerHTML = `
+<h2>Error cargando API.</h2>
+<p>${error}</p>
+`;
 
 }
 
