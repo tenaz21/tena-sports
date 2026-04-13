@@ -7,7 +7,7 @@ const contenido = document.getElementById("contenido");
 try{
 
 const response = await fetch(
-"https://football-api-7.p.rapidapi.com/api/matches/live",
+"https://football-api-7.p.rapidapi.com/api/v3/matches/live",
 {
 headers:{
 "X-RapidAPI-Key": API_KEY,
@@ -18,17 +18,14 @@ headers:{
 const data = await response.json();
 
 contenido.innerHTML = `
-<pre style="color:white; font-size:12px; white-space:pre-wrap;">
+<pre style="color:white;">
 ${JSON.stringify(data,null,2)}
 </pre>
 `;
 
 }catch(error){
 
-contenido.innerHTML = `
-<h2>Error:</h2>
-<p>${error}</p>
-`;
+contenido.innerHTML=`<h2>${error}</h2>`;
 
 }
 
