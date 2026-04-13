@@ -1,21 +1,19 @@
 const API_KEY = "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140";
 
-const LIVE_URL =
-"https://free-football-api-data.p.rapidapi.com/football-current-live";
-
-async function cargarEnVivo() {
+async function cargarEnVivo(){
 
 const contenido = document.getElementById("contenido");
 
-contenido.innerHTML = "<h2>Cargando partidos...</h2>";
+contenido.innerHTML = "Cargando...";
 
-try {
+try{
 
-const response = await fetch(LIVE_URL,{
-method:"GET",
+const response = await fetch(
+"https://football-api-7.p.rapidapi.com/api/matches/live",
+{
 headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":"free-football-api-data.p.rapidapi.com"
+"X-RapidAPI-Key":API_KEY,
+"X-RapidAPI-Host":"football-api-7.p.rapidapi.com"
 }
 });
 
@@ -23,24 +21,25 @@ const data = await response.json();
 
 console.log(data);
 
-contenido.innerHTML = "";
+contenido.innerHTML="";
 
-if(!data.response?.live?.length){
+if(!data.events.length){
 contenido.innerHTML="<h2>No hay partidos en vivo.</h2>";
 return;
 }
 
-data.response.live.forEach(partido=>{
+data.events.forEach(match=>{
 
 contenido.innerHTML += `
 <div class="card">
-<h2>${partido.home.name} vs ${partido.away.name}</h2>
+<h2>${match.homeTeam.name} vs ${match.awayTeam.name}</h2>
 
 <div class="score">
-${partido.home.score} - ${partido.away.score}
+${match.homeScore.current} - ${match.awayScore.current}
 </div>
 
-<p>${partido.time}</p>
+<p>${match.status.description}</p>
+
 </div>
 `;
 
@@ -48,8 +47,9 @@ ${partido.home.score} - ${partido.away.score}
 
 }catch(error){
 
-contenido.innerHTML="<h2>Error cargando partidos.</h2>";
-console.error(error);
+contenido.innerHTML="<h2>Error cargando API.</h2>";
+
+console.log(error);
 
 }
 
