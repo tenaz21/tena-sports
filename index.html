@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ligas de Fútbol</title>
+<title>Partidos de Fútbol</title>
 
 <style>
 body{
-    background:#111;
+    background:#0f0f0f;
     color:white;
     font-family:Arial;
     padding:20px;
@@ -17,61 +17,70 @@ h1{
     text-align:center;
 }
 
-#ligas{
+#partidos{
     display:grid;
     gap:15px;
 }
 
-.liga{
+.partido{
     background:#1c1c1c;
     padding:15px;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    gap:15px;
+    border-radius:12px;
 }
 
-.liga img{
-    width:50px;
-    height:50px;
+.equipos{
+    display:flex;
+    justify-content:space-between;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.marcador{
+    text-align:center;
+    font-size:24px;
+    margin-top:10px;
+    color:#00ff88;
 }
 </style>
-
 </head>
 <body>
 
-<h1>⚽ Ligas de Fútbol</h1>
+<h1>⚽ Partidos en Vivo</h1>
 
-<div id="ligas"></div>
+<div id="partidos"></div>
 
 <script>
-fetch("https://football-api-7.p.rapidapi.com/api/competitions", {
+fetch("https://football-api-7.p.rapidapi.com/api/matches/live", {
 	method: "GET",
 	headers: {
 		"X-RapidAPI-Key": "46146fa668msh7fabe31efaaf8dep198920jsn3151b4847140",
 		"X-RapidAPI-Host": "football-api-7.p.rapidapi.com"
 	}
 })
-.then(response => response.json())
+.then(res => res.json())
 .then(data => {
 
-    const contenedor = document.getElementById("ligas");
+    const partidos = document.getElementById("partidos");
 
-    data.competitions.slice(0,10).forEach(liga => {
+    data.events.forEach(match => {
 
-        contenedor.innerHTML += `
-            <div class="liga">
-                <img src="${liga.logo}" alt="">
-                <div>
-                    <h3>${liga.name}</h3>
-                    <p>ID: ${liga.id}</p>
+        partidos.innerHTML += `
+            <div class="partido">
+                <div class="equipos">
+                    <span>${match.homeTeam.name}</span>
+                    <span>vs</span>
+                    <span>${match.awayTeam.name}</span>
+                </div>
+
+                <div class="marcador">
+                    ${match.homeScore.current} - ${match.awayScore.current}
                 </div>
             </div>
         `;
     });
 
 })
-.catch(err => console.error(err));
+.catch(err => console.log(err));
 </script>
 
 </body>
